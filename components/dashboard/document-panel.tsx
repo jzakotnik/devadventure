@@ -4,8 +4,11 @@ import * as React from "react"
 import { diffWordsWithSpace } from "diff"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { FileText, GitCompare, History as HistoryIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { DocumentVersion } from "@/lib/events/derive"
+import type { AgentId } from "@/lib/events/types"
+import { AGENT_THEME } from "@/lib/events/agent-theme"
 
 type Tab = "read" | "changes" | "history"
 
@@ -14,6 +17,12 @@ const AGENT_LABEL: Record<string, string> = {
   BMZ: "BMZ",
   PEA: "PEA (Partner)",
   TEAMLEITUNG: "Teamleitung",
+}
+
+const TAB_ICON: Record<Tab, typeof FileText> = {
+  read: FileText,
+  changes: GitCompare,
+  history: HistoryIcon,
 }
 
 function formatTime(iso: string) {
@@ -56,29 +65,47 @@ export function DocumentPanel({ versions }: { versions: DocumentVersion[] }) {
 
   const previous = versions.find((v) => v.version === (selected?.version ?? 0) - 1)
 
+  const latestTheme = AGENT_THEME[latest.agent as AgentId]
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between gap-2 px-1 pb-2">
-        <div>
-          <div className="text-sm font-semibold">{latest.filename}</div>
-          <div className="text-muted-foreground text-xs">
-            Version {latest.version} · zuletzt {AGENT_LABEL[latest.agent] ?? latest.agent} · {formatTime(latest.occurredAt)}
+        <div className="flex items-center gap-2.5">
+          <span
+            key={latest.version}
+            className={cn(
+              "animate-in zoom-in-50 flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow duration-300",
+              latestTheme?.solid ?? "bg-slate-500"
+            )}
+          >
+            v{latest.version}
+          </span>
+          <div>
+            <div className="text-sm font-semibold">{latest.filename}</div>
+            <div className="text-muted-foreground text-xs">
+              zuletzt <span className={cn("font-medium", latestTheme?.text)}>{AGENT_LABEL[latest.agent] ?? latest.agent}</span> ·{" "}
+              {formatTime(latest.occurredAt)}
+            </div>
           </div>
         </div>
         <div className="flex gap-1 text-xs">
-          {(["read", "changes", "history"] as Tab[]).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTab(t)}
-              className={cn(
-                "rounded-md px-2 py-1 font-medium",
-                tab === t ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"
-              )}
-            >
-              {t === "read" ? "Lesen" : t === "changes" ? "Änderungen" : "Verlauf"}
-            </button>
-          ))}
+          {(["read", "changes", "history"] as Tab[]).map((t) => {
+            const TabIcon = TAB_ICON[t]
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTab(t)}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-semibold transition-colors",
+                  tab === t ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"
+                )}
+              >
+                <TabIcon className="size-3.5" />
+                {t === "read" ? "Lesen" : t === "changes" ? "Änderungen" : "Verlauf"}
+              </button>
+            )
+          })}
         </div>
       </div>
 
@@ -110,7 +137,9 @@ export function DocumentPanel({ versions }: { versions: DocumentVersion[] }) {
 
         {tab === "history" ? (
           <ul className="space-y-1.5">
-            {versions.map((v) => (
+            {versions.map((v) => {
+              const vTheme = AGENT_THEME[v.agent as AgentId]
+              return (
               <li key={v.version}>
                 <button
                   type="button"
@@ -118,16 +147,20 @@ export function DocumentPanel({ versions }: { versions: DocumentVersion[] }) {
                     setHistorySelection(v.version)
                     setTab("read")
                   }}
-                  className="hover:bg-muted flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm"
+                  className="hover:bg-muted flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm"
                 >
-                  <span>
-                    <span className="font-medium">v{v.version}</span> — {AGENT_LABEL[v.agent] ?? v.agent}
+                  <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white", vTheme?.solid ?? "bg-slate-500")}>
+                    v{v.version}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className={cn("font-semibold", vTheme?.text)}>{AGENT_LABEL[v.agent] ?? v.agent}</span>
                     {v.summary ? <span className="text-muted-foreground"> · {v.summary}</span> : null}
                   </span>
                   <span className="text-muted-foreground text-xs">{formatTime(v.occurredAt)}</span>
                 </button>
               </li>
-            ))}
+              )
+            })}
           </ul>
         ) : null}
       </div>
