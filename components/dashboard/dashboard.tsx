@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Radio } from "lucide-react"
+import Link from "next/link"
+import { Radio, LayoutGrid } from "lucide-react"
 import { useDemoEvents } from "@/lib/events/use-demo-events"
 import { deriveAgentStates, deriveDocumentVersions } from "@/lib/events/derive"
 import type { AgentId, DemoEvent } from "@/lib/events/types"
@@ -37,6 +38,10 @@ export function Dashboard() {
               {runId ? <p className="text-muted-foreground text-xs">{runId}</p> : null}
             </div>
           </div>
+          <Link href="/simple" className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs font-medium">
+            <LayoutGrid className="size-3.5" />
+            Einfache Ansicht
+          </Link>
         </div>
         <ProcessBar events={events} />
         <Spotlight event={latestEvent} />
