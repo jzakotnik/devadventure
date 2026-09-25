@@ -1,9 +1,9 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
-import { Radio, ArrowLeft } from "lucide-react"
+import { Radio } from "lucide-react"
 import { useDemoEvents } from "@/lib/events/use-demo-events"
+import { ViewSwitcher } from "@/components/view-switcher"
 import { deriveAgentStates, deriveDocumentVersions } from "@/lib/events/derive"
 import type { AgentId, DemoEvent } from "@/lib/events/types"
 import { Controls } from "@/components/dashboard/controls"
@@ -43,10 +43,7 @@ export function SimpleDashboard() {
             </span>
             <h1 className="text-lg leading-tight font-bold">KSN Demo — Übersicht</h1>
           </div>
-          <Link href="/" className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs font-medium">
-            <ArrowLeft className="size-3.5" />
-            Ausführliche Ansicht
-          </Link>
+          <ViewSwitcher />
         </div>
         <Spotlight event={latestEvent} />
         <Controls connection={connection} paused={paused} onTogglePause={() => setPaused((p) => !p)} onClear={clear} />

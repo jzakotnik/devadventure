@@ -14,6 +14,8 @@ export type AgentTheme = {
   text: string
   ring: string
   dot: string
+  /** SVG stroke color for connection lines. */
+  stroke: string
 }
 
 export const AGENT_THEME: Record<AgentId, AgentTheme> = {
@@ -27,6 +29,7 @@ export const AGENT_THEME: Record<AgentId, AgentTheme> = {
     text: "text-indigo-600 dark:text-indigo-400",
     ring: "ring-indigo-400",
     dot: "bg-indigo-500",
+    stroke: "stroke-indigo-500",
   },
   BMZ: {
     icon: Landmark,
@@ -38,6 +41,7 @@ export const AGENT_THEME: Record<AgentId, AgentTheme> = {
     text: "text-violet-600 dark:text-violet-400",
     ring: "ring-violet-400",
     dot: "bg-violet-500",
+    stroke: "stroke-violet-500",
   },
   PEA: {
     icon: Globe2,
@@ -49,6 +53,7 @@ export const AGENT_THEME: Record<AgentId, AgentTheme> = {
     text: "text-amber-600 dark:text-amber-400",
     ring: "ring-amber-400",
     dot: "bg-amber-500",
+    stroke: "stroke-amber-500",
   },
   TEAMLEITUNG: {
     icon: ShieldCheck,
@@ -60,5 +65,6 @@ export const AGENT_THEME: Record<AgentId, AgentTheme> = {
     text: "text-emerald-600 dark:text-emerald-400",
     ring: "ring-emerald-400",
     dot: "bg-emerald-500",
+    stroke: "stroke-emerald-500",
   },
 }

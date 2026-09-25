@@ -5,6 +5,15 @@ n8n stays the orchestrator, this app just observes and displays. Events live in 
 in-memory ring buffer inside one long-running Next.js process and are pushed to
 browsers over Server-Sent Events.
 
+Three views, switchable from the header:
+
+- **`/`** — the full control room: process bar, agent cards, activity feed, document
+  versions/diff, decision cards. Driven by the n8n event stream (see "Wiring up n8n").
+- **`/simple`** — a presentation-friendly map of the four actors with animated email
+  flights, click-to-inspect. Same event stream as `/`.
+- **`/mail`** — a third, independent view driven **only** by the four real IMAP
+  mailboxes, not n8n events. See "Email-only view" below.
+
 ## Running it
 
 ```bash
@@ -160,6 +169,71 @@ email subject `[KS-…][ANF-…]`), so parse it out of the subject the same way 
 does, or simplest: add an `n8n-nodes-base.set` node right after "Anhang lesen" /
 "Dokument lesen…" that extracts `mail.subject.match(/\[(KS-[^\]]+)\]/)?.[1]` and
 reuses it as `run_id` in the event payload.
+
+## Email-only view (`/mail`)
+
+A third view that ignores n8n entirely and shows only what four real IMAP
+mailboxes actually contain — from/to/subject/body, and the `kurzstellungnahme.md`
+attachment where present. No execution IDs, no `vorgang_id`/`anfrage_id`, no
+round-counting: just "who emailed whom, and what was attached," the way a human
+reading four inboxes would see it. Useful as an independent sanity check against
+the n8n-driven views, or as a lighter-weight demo that needs no n8n instrumentation
+at all — only working IMAP credentials for the four mailboxes.
+
+### Setup
+
+Set these environment variables (e.g. in `.env.local`) for each of the four roles
+you want to show — a role with any of HOST/USER/PASSWORD missing is simply left
+"not configured" in the UI rather than breaking the page:
+
+```bash
+IMAP_PM_HOST=imap.example.com
+IMAP_PM_PORT=993              # optional, default 993
+IMAP_PM_SECURE=true           # optional, default true; false uses STARTTLS
+IMAP_PM_USER=projektmanager@example.com
+IMAP_PM_PASSWORD=...
+
+IMAP_BMZ_HOST=...
+IMAP_BMZ_USER=...
+IMAP_BMZ_PASSWORD=...
+
+IMAP_PEA_HOST=...
+IMAP_PEA_USER=...
+IMAP_PEA_PASSWORD=...
+
+IMAP_TEAMLEITUNG_HOST=...
+IMAP_TEAMLEITUNG_USER=...
+IMAP_TEAMLEITUNG_PASSWORD=...
+```
+
+An app password is strongly recommended over the mailbox's real password.
+
+### How it works
+
+- `lib/mail/store.ts` opens one `ImapFlow` connection per configured mailbox,
+  **read-only** (`mailboxOpen('INBOX', { readOnly: true })`) — it never sets
+  `\Seen` or any other flag, so it's safe to run alongside n8n's own IMAP trigger
+  nodes on the same mailboxes. It only looks at mail that arrives *after* it
+  connects (baseline = `uidNext` at connect time); it does not replay or alter
+  anything already in the inbox.
+- New mail is detected via IMAP IDLE (`ImapFlow`'s automatic idle, triggered by
+  its `exists` event) — no polling loop. On disconnect it reconnects with a 5s
+  backoff.
+- Each message is parsed with `mailparser` to get from/to/subject/body, and any
+  `.md`/`.markdown`/`.txt` attachment (capped at 200KB) is kept as the document
+  text.
+- **The only "who is who" knowledge this view uses** is built at runtime from the
+  four configured mailbox addresses themselves (`lib/mail/config.ts`'s
+  `buildAddressDirectory`) — not from any hardcoded n8n domain or convention.
+  Whoever the mailbox owner emails becomes a labeled actor; anyone else shows up
+  as a plain, unlabeled address.
+- Document versions for the `/mail` document panel are derived by watching
+  attachment text change across messages (`lib/mail/derive.ts`) — a new version
+  is only recorded when the attached text actually differs from the last one
+  seen, same principle as the n8n-driven views.
+- `GET /api/mail/status` reports which of the four mailboxes are configured and
+  connected (never the credentials); `GET /api/mail/stream` is the SSE feed the
+  page subscribes to.
 
 ## Architecture notes
 
