@@ -1,8 +1,10 @@
 "use client"
 
 import * as React from "react"
+import { cn } from "@/lib/utils"
 import type { AgentId } from "@/lib/events/types"
 import { AGENT_POSITION, SATELLITE_AGENTS } from "@/lib/events/simple-layout"
+import { AGENT_THEME } from "@/lib/events/agent-theme"
 import { EmailFlight } from "@/components/simple/email-flight"
 import type { AccountStatus, MailMessage } from "@/lib/mail/types"
 import { MailActor } from "./mail-actor"
@@ -11,6 +13,15 @@ type Flight = { id: string; from: { x: number; y: number }; to: { x: number; y: 
 
 function latestFor(messages: MailMessage[], account: AgentId): MailMessage | null {
   for (let i = messages.length - 1; i >= 0; i--) if (messages[i].account === account) return messages[i]
+  return null
+}
+
+/** Which PM↔satellite connection the most recent message travelled on. */
+function latestSatellite(messages: MailMessage[]): AgentId | null {
+  const last = messages.at(-1)
+  if (!last) return null
+  if (last.account !== "PM") return last.account
+  if (last.fromAgent && last.fromAgent !== "PM") return last.fromAgent
   return null
 }
 
@@ -56,22 +67,30 @@ export function MailMap({
   }, [])
 
   const statusFor = (id: AgentId) => statuses.find((s) => s.id === id)
+  const highlighted = React.useMemo(() => latestSatellite(messages), [messages])
 
   return (
     <div className="relative aspect-square w-full max-w-lg">
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-        {SATELLITE_AGENTS.map((id) => (
-          <line
-            key={id}
-            x1={AGENT_POSITION.PM.x}
-            y1={AGENT_POSITION.PM.y}
-            x2={AGENT_POSITION[id].x}
-            y2={AGENT_POSITION[id].y}
-            className="stroke-border"
-            strokeWidth={0.6}
-            strokeDasharray="2.5 2.5"
-          />
-        ))}
+        {SATELLITE_AGENTS.map((id) => {
+          const active = id === highlighted
+          return (
+            <line
+              key={id}
+              x1={AGENT_POSITION.PM.x}
+              y1={AGENT_POSITION.PM.y}
+              x2={AGENT_POSITION[id].x}
+              y2={AGENT_POSITION[id].y}
+              className={cn(
+                "transition-[stroke,stroke-width] duration-500",
+                active ? AGENT_THEME[id].stroke : "stroke-muted-foreground/45"
+              )}
+              strokeWidth={active ? 1.4 : 0.7}
+              strokeDasharray={active ? undefined : "2.5 2.5"}
+              strokeLinecap="round"
+            />
+          )
+        })}
       </svg>
 
       <MailActor
