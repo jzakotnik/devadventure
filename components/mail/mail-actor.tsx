@@ -12,6 +12,7 @@ export function MailActor({
   status,
   lastMessage,
   justArrived,
+  working,
   selected,
   onSelect,
 }: {
@@ -19,6 +20,8 @@ export function MailActor({
   status?: AccountStatus
   lastMessage?: MailMessage | null
   justArrived: boolean
+  /** This actor received the most recent email — the flow is waiting on them. */
+  working: boolean
   selected: boolean
   onSelect: () => void
 }) {
@@ -45,9 +48,21 @@ export function MailActor({
           "relative flex items-center justify-center rounded-full text-white shadow-xl transition-transform",
           isHub ? "size-24" : "size-[4.5rem]",
           configured ? theme.solid : "bg-muted-foreground/30 grayscale",
-          selected && "scale-110"
+          selected && "scale-110",
+          working && "scale-105"
         )}
       >
+        {working ? (
+          <>
+            <span
+              className={cn(
+                "absolute -inset-2.5 animate-spin rounded-full border-4 border-dashed opacity-80 [animation-duration:2.5s]",
+                theme.ring
+              )}
+            />
+            <span className={cn("absolute -inset-2 animate-pulse rounded-full opacity-40 blur-md", theme.stripe)} />
+          </>
+        ) : null}
         {justArrived ? <span className={cn("absolute -inset-1.5 animate-ping rounded-full opacity-50", theme.stripe)} /> : null}
         {selected ? <span className="ring-foreground/70 absolute -inset-1 rounded-full ring-2" /> : null}
         <UserRound className={isHub ? "size-12" : "size-9"} strokeWidth={1.6} />
@@ -72,9 +87,16 @@ export function MailActor({
         ) : null}
       </span>
       <span className="bg-background/90 rounded-full px-2.5 py-0.5 text-sm font-bold shadow">{theme.short}</span>
-      <span className="text-muted-foreground line-clamp-1 max-w-28 text-center text-[11px]">
-        {!configured ? "nicht eingerichtet" : (lastMessage?.subject ?? "noch keine E-Mail")}
-      </span>
+      {working ? (
+        <span className={cn("flex items-center gap-1 text-[11px] font-bold", theme.text)}>
+          <span className={cn("size-1.5 animate-pulse rounded-full", theme.dot)} />
+          Bearbeitet…
+        </span>
+      ) : (
+        <span className="text-muted-foreground line-clamp-1 max-w-28 text-center text-[11px]">
+          {!configured ? "nicht eingerichtet" : (lastMessage?.subject ?? "noch keine E-Mail")}
+        </span>
+      )}
     </button>
   )
 }

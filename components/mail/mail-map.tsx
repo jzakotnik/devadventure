@@ -68,6 +68,7 @@ export function MailMap({
 
   const statusFor = (id: AgentId) => statuses.find((s) => s.id === id)
   const highlighted = React.useMemo(() => latestSatellite(messages), [messages])
+  const workingAccount = messages.at(-1)?.account ?? null
 
   return (
     <div className="relative aspect-square w-full max-w-lg">
@@ -98,6 +99,7 @@ export function MailMap({
         status={statusFor("PM")}
         lastMessage={latestFor(messages, "PM")}
         justArrived={!!justArrived.PM}
+        working={workingAccount === "PM"}
         selected={selectedAccount === "PM"}
         onSelect={() => onSelectAccount("PM")}
       />
@@ -108,6 +110,7 @@ export function MailMap({
           status={statusFor(id)}
           lastMessage={latestFor(messages, id)}
           justArrived={!!justArrived[id]}
+          working={workingAccount === id}
           selected={selectedAccount === id}
           onSelect={() => onSelectAccount(id)}
         />
