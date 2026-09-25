@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Radio, Wifi, WifiOff, RefreshCw, FileText, Mail as MailIcon } from "lucide-react"
+import { Radio, Wifi, WifiOff, RefreshCw, Mail as MailIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useMailStream, type MailConnectionState } from "@/lib/mail/use-mail-stream"
 import { deriveDocumentVersionsFromMail } from "@/lib/mail/derive"
@@ -38,22 +38,27 @@ export function MailDashboard() {
   const { messages, statuses, connection } = useMailStream()
   const [selectedAccount, setSelectedAccount] = React.useState<AgentId | null>(null)
   const [selectedMessage, setSelectedMessage] = React.useState<MailMessage | null>(null)
-  const [panelTab, setPanelTab] = React.useState<"document" | "email">("document")
 
   const documentVersions = React.useMemo(() => deriveDocumentVersionsFromMail(messages), [messages])
   const anyConfigured = statuses.some((s) => s.configured)
   const allConfigured = statuses.length > 0 && statuses.every((s) => s.configured)
   const Icon = CONNECTION_ICON[connection]
 
+  const latestOverall = messages.at(-1) ?? null
+  const displayedMessage = selectedMessage ?? latestOverall
+
   function handleSelectAccount(id: AgentId) {
     setSelectedAccount(id)
-    const msg = latestMessageFor(messages, id)
-    setSelectedMessage(msg)
-    setPanelTab(msg ? "email" : "document")
+    setSelectedMessage(latestMessageFor(messages, id))
+  }
+
+  function clearSelection() {
+    setSelectedAccount(null)
+    setSelectedMessage(null)
   }
 
   return (
-    <div className="mx-auto flex h-screen max-w-[1400px] flex-col gap-3 overflow-hidden p-4">
+    <div className="mx-auto flex h-screen max-w-[1600px] flex-col gap-3 overflow-hidden p-4">
       <header className="from-primary/5 shrink-0 space-y-3 rounded-xl border bg-gradient-to-r to-transparent p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2.5">
@@ -78,48 +83,38 @@ export function MailDashboard() {
           <SetupNotice statuses={statuses} />
         </main>
       ) : (
-        <main className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[1fr_380px]">
+        <main className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-2">
           <section className="flex min-h-0 flex-col gap-3 overflow-y-auto rounded-xl border p-6">
             {!allConfigured ? <SetupNotice statuses={statuses} compact /> : null}
-            <div className="flex flex-1 items-center justify-center">
-              <MailMap messages={messages} statuses={statuses} selectedAccount={selectedAccount} onSelectAccount={handleSelectAccount} />
+            <div className="flex flex-1 items-center justify-start">
+              <MailMap
+                messages={messages}
+                statuses={statuses}
+                selectedAccount={selectedAccount}
+                onSelectAccount={handleSelectAccount}
+              />
             </div>
           </section>
 
-          <section className="min-h-0">
-            <div className="flex h-full min-h-0 flex-col rounded-xl border p-3">
-              <div className="mb-2 flex shrink-0 gap-1">
-                <button
-                  type="button"
-                  onClick={() => setPanelTab("document")}
-                  className={cn(
-                    "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
-                    panelTab === "document" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"
-                  )}
-                >
-                  <FileText className="size-4" />
-                  Dokument
-                </button>
-                <button
-                  type="button"
-                  onClick={() => selectedMessage && setPanelTab("email")}
-                  disabled={!selectedMessage}
-                  className={cn(
-                    "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-40",
-                    panelTab === "email" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted"
-                  )}
-                >
-                  <MailIcon className="size-4" />
-                  E-Mail
-                </button>
+          <section className="grid min-h-0 grid-rows-2 gap-4">
+            <div className="flex min-h-0 flex-col rounded-xl border p-3">
+              <div className="text-muted-foreground mb-2 flex shrink-0 items-center gap-1.5 text-xs font-bold tracking-wide uppercase">
+                <MailIcon className="size-3.5" />
+                Letzte E-Mail
               </div>
               <div className="min-h-0 flex-1 overflow-hidden">
-                {panelTab === "email" && selectedMessage ? (
-                  <MessageDetail message={selectedMessage} onClose={() => setPanelTab("document")} />
+                {displayedMessage ? (
+                  <MessageDetail message={displayedMessage} onClose={clearSelection} />
                 ) : (
-                  <DocumentPanel versions={documentVersions} />
+                  <div className="text-muted-foreground flex h-full items-center justify-center text-center text-sm">
+                    Noch keine E-Mail empfangen.
+                  </div>
                 )}
               </div>
+            </div>
+
+            <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border p-3">
+              <DocumentPanel versions={documentVersions} />
             </div>
           </section>
         </main>

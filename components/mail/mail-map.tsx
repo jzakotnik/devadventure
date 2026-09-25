@@ -58,7 +58,7 @@ export function MailMap({
   const statusFor = (id: AgentId) => statuses.find((s) => s.id === id)
 
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-xl">
+    <div className="relative aspect-square w-full max-w-lg">
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
         {SATELLITE_AGENTS.map((id) => (
           <line
