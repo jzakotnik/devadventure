@@ -141,6 +141,7 @@ export function GameClient() {
       sinceEventRef.current++
     }
     world.onDoor = () => sound.door()
+    world.onGreet = () => sound.blip(2)
     const renderer = new Renderer(proc, world)
     let last = performance.now()
     let raf = 0

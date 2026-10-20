@@ -45,3 +45,10 @@ Arrows / WASD move · E, Enter or click an NPC to talk · 1–3 or click to answ
   (`talks`, `steps`, `hints`, `facts`, `eventsGood`, `eventsBad`, `events`, `wrongVisits`),
   `statAtMost`, `finished`, `roundsAtMost/AtLeast`, `scoreAtLeast`, `flag`, `roomsVisited`.
   Unlocks are announced in-game and stored in `localStorage` (`bueroquest:ach:<process id>`).
+
+## Ambient colleagues
+
+`ambient` in the process JSON: `wanderers[]` (name, look, start tile) walk randomly through
+the whole building. When one passes within `greetDistance` tiles they show a short speech
+bubble (random from `lines`, per-person `cooldownSec`). They never stop or block the player
+and have no dialog; the player can walk straight through them.

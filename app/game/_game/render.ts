@@ -391,6 +391,23 @@ export class Renderer {
         },
       })
     }
+    for (const k of w.walkers) {
+      const [kx, ky] = w.walkerPos(k)
+      const frame = k.moving ? Math.floor(k.moving.t / 0.1) % 2 : 0
+      sprites.push({
+        y: ky,
+        draw: () =>
+          drawCharacter(
+            ctx,
+            k.look,
+            k.facing,
+            frame,
+            Math.round(kx * TILE),
+            Math.round(ky * TILE),
+            true
+          ),
+      })
+    }
     if (opts.showPlayer) {
       const [dx, dy] = w.drawPos
       const walkFrame = w.moving ? Math.floor(w.moving.t / 0.06) % 2 : 0
@@ -493,6 +510,25 @@ export class Renderer {
       const ly = n.at[1] * TILE - 23
       this.box(ctx, cx - lw / 2, ly, lw, 10, "#ffd866")
       this.text(ctx, label, cx, ly + 5.5, 6, "#fff")
+    }
+
+    for (const k of w.walkers) {
+      if (!k.say) continue
+      const [kx, ky] = w.walkerPos(k)
+      const label = k.say.text
+      const lw = label.length * 3.9 + 8
+      const cx = Math.max(
+        lw / 2 + 1,
+        Math.min(VIEW_W - lw / 2 - 1, kx * TILE + 8)
+      )
+      const ly = Math.max(1, ky * TILE - 16)
+      ctx.globalAlpha = Math.min(
+        1,
+        3 * (1 - k.say.age / this.proc.ambient.bubbleSec)
+      )
+      this.box(ctx, cx - lw / 2, ly, lw, 9, "#9ac8ff")
+      this.text(ctx, label, cx, ly + 5, 5.5, "#fff")
+      ctx.globalAlpha = 1
     }
 
     for (const p of w.popups) {

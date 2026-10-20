@@ -1054,5 +1054,62 @@
         "roundsAtLeast": 2
       }
     }
-  ]
+  ],
+  "ambient": {
+    "greetDistance": 2.2,
+    "cooldownSec": 10,
+    "bubbleSec": 2.4,
+    "lines": [
+      "Gude!",
+      "Hallo!",
+      "Diese Prozesse wieder…",
+      "IT läuft!"
+    ],
+    "wanderers": [
+      {
+        "id": "jonas",
+        "name": "Jonas",
+        "start": [
+          8,
+          8
+        ],
+        "look": {
+          "shirt": "#e86a3a",
+          "pants": "#2c3448",
+          "hair": "#403020",
+          "skin": "#f0c8a0",
+          "accessory": "glasses"
+        }
+      },
+      {
+        "id": "katrin",
+        "name": "Katrin",
+        "start": [
+          20,
+          9
+        ],
+        "look": {
+          "shirt": "#38a8a0",
+          "pants": "#3a3a50",
+          "hair": "#b03a2a",
+          "skin": "#e8b890"
+        }
+      },
+      {
+        "id": "sven",
+        "name": "Sven",
+        "start": [
+          4,
+          14
+        ],
+        "look": {
+          "shirt": "#a0a0b8",
+          "pants": "#2a2f40",
+          "hair": "#d8c068",
+          "skin": "#f0c8a0",
+          "accessory": "tie"
+        }
+      }
+    ]
+  }
 }

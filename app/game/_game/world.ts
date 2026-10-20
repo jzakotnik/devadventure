@@ -1,5 +1,5 @@
 import { buildMap, findPath, type GameMap } from "./map"
-import type { Dir, Process } from "./schema"
+import type { Dir, NpcLook, Process } from "./schema"
 
 const MOVE_TIME = 0.12
 
@@ -24,6 +24,24 @@ export interface Dust {
   age: number
 }
 
+const WANDER_MOVE_TIME = 0.2
+
+export interface Walker {
+  id: string
+  look: NpcLook
+  x: number
+  y: number
+  facing: Dir
+  moving: { fx: number; fy: number; t: number } | null
+  path: Array<[number, number]>
+  /** Seconds left to idle at the current spot. */
+  pause: number
+  waited: number
+  greetCooldown: number
+  say: { text: string; age: number } | null
+  lastLine: number
+}
+
 /** Mutable real-time world: player movement, auto-walk, particles. */
 export class World {
   map: GameMap
@@ -42,11 +60,111 @@ export class World {
   /** Fires on every completed step (for sound). */
   onStep?: () => void
   onDoor?: () => void
+  /** Fires when a colleague greets the player (for sound). */
+  onGreet?: () => void
+  walkers: Walker[] = []
 
   constructor(private proc: Process) {
     this.map = buildMap(proc)
     this.x = proc.map.start[0]
     this.y = proc.map.start[1]
+    this.walkers = proc.ambient.wanderers.map((a) => ({
+      id: a.id,
+      look: a.look,
+      x: a.start[0],
+      y: a.start[1],
+      facing: "down" as Dir,
+      moving: null,
+      path: [],
+      pause: Math.random() * 2,
+      waited: 0,
+      greetCooldown: 0,
+      say: null,
+      lastLine: -1,
+    }))
+  }
+
+  /** Interpolated tile position of a colleague. */
+  walkerPos(k: Walker): [number, number] {
+    if (!k.moving) return [k.x, k.y]
+    const f = Math.min(1, k.moving.t / WANDER_MOVE_TIME)
+    return [
+      k.moving.fx + (k.x - k.moving.fx) * f,
+      k.moving.fy + (k.y - k.moving.fy) * f,
+    ]
+  }
+
+  private updateWalkers(dt: number, frozen: boolean) {
+    const npcTiles = this.blockedByNpc()
+    const amb = this.proc.ambient
+    for (const k of this.walkers) {
+      k.greetCooldown = Math.max(0, k.greetCooldown - dt)
+      if (k.say) {
+        k.say.age += dt
+        if (k.say.age > amb.bubbleSec) k.say = null
+      }
+      if (k.moving) {
+        k.moving.t += dt
+        if (k.moving.t >= WANDER_MOVE_TIME) k.moving = null
+      }
+      if (!k.moving) {
+        if (k.pause > 0) k.pause -= dt
+        else if (!k.path.length) {
+          const goal = this.randomTile(npcTiles)
+          const blocked = new Set(npcTiles)
+          const p = goal
+            ? findPath(this.map, [k.x, k.y], [goal], blocked)
+            : null
+          k.path = p ?? []
+          if (!p) k.pause = 1
+          else if (Math.random() < 0.5) k.pause = 0.3
+        } else {
+          const [nx, ny] = k.path[0]
+          const occupied = this.walkers.some(
+            (o) => o !== k && o.x === nx && o.y === ny
+          )
+          if (occupied) {
+            k.waited += dt
+            if (k.waited > 1.2) {
+              k.path = []
+              k.waited = 0
+              k.pause = 0.5
+            }
+          } else {
+            k.waited = 0
+            k.facing =
+              nx > k.x ? "right" : nx < k.x ? "left" : ny > k.y ? "down" : "up"
+            k.moving = { fx: k.x, fy: k.y, t: 0 }
+            k.x = nx
+            k.y = ny
+            k.path.shift()
+            if (!k.path.length) k.pause = 1.5 + Math.random() * 3.5
+          }
+        }
+      }
+      // greet the player in passing; never stops anything
+      if (!frozen && !k.say && k.greetCooldown <= 0 && amb.lines.length) {
+        const [px, py] = this.drawPos
+        const [kx, ky] = this.walkerPos(k)
+        if (Math.hypot(px - kx, py - ky) <= amb.greetDistance) {
+          let i = Math.floor(Math.random() * amb.lines.length)
+          if (i === k.lastLine) i = (i + 1) % amb.lines.length
+          k.lastLine = i
+          k.say = { text: amb.lines[i], age: 0 }
+          k.greetCooldown = amb.cooldownSec
+          this.onGreet?.()
+        }
+      }
+    }
+  }
+
+  private randomTile(npcTiles: Set<string>): [number, number] | null {
+    for (let tries = 0; tries < 30; tries++) {
+      const x = 1 + Math.floor(Math.random() * (this.map.w - 2))
+      const y = 1 + Math.floor(Math.random() * (this.map.h - 2))
+      if (!this.map.isSolid(x, y) && !npcTiles.has(`${x},${y}`)) return [x, y]
+    }
+    return null
   }
 
   reset() {
@@ -154,6 +272,7 @@ export class World {
     this.popups = this.popups.filter((p) => p.age < 1.2)
     for (const d of this.dust) d.age += dt
     this.dust = this.dust.filter((d) => d.age < 0.35)
+    this.updateWalkers(dt, frozen)
     if (frozen) return null
 
     if (this.moving) {

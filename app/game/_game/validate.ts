@@ -59,6 +59,13 @@ export function validateProcess(proc: Process): string[] {
         errors.push(`pipeline ${step.label}: unknown stage ${sid}`)
   }
 
+  for (const w of proc.ambient.wanderers) {
+    if (map.isSolid(w.start[0], w.start[1]))
+      errors.push(`wanderer ${w.id}: start ${w.start} is not walkable`)
+  }
+  if (proc.ambient.wanderers.length && !proc.ambient.lines.length)
+    errors.push("ambient: no greeting lines")
+
   const flags = new Set<string>()
   for (const ev of proc.events) {
     for (const c of ev.choices) if (c.flag) flags.add(c.flag)

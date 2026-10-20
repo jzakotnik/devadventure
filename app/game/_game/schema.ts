@@ -122,6 +122,7 @@ export interface Process {
   events: GameEvent[]
   eventSettings: EventSettings
   achievements: Achievement[]
+  ambient: Ambient
 }
 
 /* ---------------------------------------------------------- random events */
@@ -168,4 +169,24 @@ export interface Achievement {
   description: string
   icon: string
   rule: AchievementRule
+}
+
+/* ---------------------------------------------------------- ambient life */
+
+export interface Wanderer {
+  id: string
+  name: string
+  start: [number, number]
+  look: NpcLook
+}
+
+/** Colleagues walking around who greet you in passing (never block or interrupt). */
+export interface Ambient {
+  /** In tiles. */
+  greetDistance: number
+  /** Seconds before the same colleague greets again. */
+  cooldownSec: number
+  bubbleSec: number
+  lines: string[]
+  wanderers: Wanderer[]
 }
