@@ -1,10 +1,11 @@
-import { drawText, textWidth } from "./font"
 import { TILE } from "./map"
 import type { Dir, NpcLook, Process } from "./schema"
 import type { World } from "./world"
 
 export const VIEW_W = 28 * TILE
 export const VIEW_H = 18 * TILE
+/** Output resolution multiplier: world is drawn low-res, scaled smoothly, text drawn crisp on top. */
+export const SCALE = 3
 
 function shade(hex: string, amt: number): string {
   const n = parseInt(hex.slice(1), 16)
@@ -225,6 +226,9 @@ export const PLAYER_LOOK: NpcLook = {
 export class Renderer {
   private bg: HTMLCanvasElement
   private vignette: HTMLCanvasElement
+  private lo: HTMLCanvasElement
+  private signs: Array<{ text: string; cx: number; y: number; color: string }> =
+    []
 
   constructor(
     private proc: Process,
@@ -236,8 +240,30 @@ export class Renderer {
     this.vignette = document.createElement("canvas")
     this.vignette.width = VIEW_W
     this.vignette.height = VIEW_H
+    this.lo = document.createElement("canvas")
+    this.lo.width = VIEW_W
+    this.lo.height = VIEW_H
     this.buildBackground()
     this.buildVignette()
+    this.buildSigns()
+  }
+
+  private buildSigns() {
+    const { map } = this.world
+    for (let y = 0; y < map.h; y++)
+      for (let x = 0; x < map.w; x++) {
+        if (map.tiles[y][x] !== "+") continue
+        const rid = map.roomAt(x, y - 1) ?? map.roomAt(x, y + 1)
+        const room = this.proc.rooms.find((r) => r.id === rid)
+        if (!room) continue
+        const wallAbove = map.tiles[y - 1]?.[x] === "#"
+        this.signs.push({
+          text: room.label,
+          cx: x * TILE + TILE / 2,
+          y: wallAbove ? y * TILE - 8 : y * TILE + TILE + 1,
+          color: room.color,
+        })
+      }
   }
 
   private buildBackground() {
@@ -261,21 +287,6 @@ export class Renderer {
         }
       }
     }
-    // room signs above doors
-    for (let y = 0; y < map.h; y++)
-      for (let x = 0; x < map.w; x++) {
-        if (map.tiles[y][x] !== "+") continue
-        const rid = map.roomAt(x, y - 1) ?? map.roomAt(x, y + 1)
-        const room = this.proc.rooms.find((r) => r.id === rid)
-        if (!room) continue
-        const w = textWidth(room.label) + 4
-        const sx = Math.round(x * TILE + TILE / 2 - w / 2)
-        const wallAbove = map.tiles[y - 1]?.[x] === "#"
-        const ty = wallAbove ? y * TILE - 8 : y * TILE + TILE + 1
-        rect(ctx, "#1a1c30", sx, ty, w, 7)
-        rect(ctx, room.color, sx, ty, w, 1)
-        drawText(ctx, room.label, sx + 2, ty + 1, "#fff")
-      }
   }
 
   private buildVignette() {
@@ -294,7 +305,7 @@ export class Renderer {
     ctx.fillRect(0, 0, VIEW_W, VIEW_H)
   }
 
-  draw(
+  private drawWorld(
     ctx: CanvasRenderingContext2D,
     opts: {
       targetNpc: string | null
@@ -399,34 +410,103 @@ export class Renderer {
     }
     sprites.sort((a, b) => a.y - b.y).forEach((s) => s.draw())
 
-    // interaction prompt
+    ctx.drawImage(this.vignette, 0, 0)
+  }
+
+  draw(
+    ctx: CanvasRenderingContext2D,
+    opts: {
+      targetNpc: string | null
+      nearNpc: string | null
+      talkingNpc: string | null
+      showPlayer: boolean
+    }
+  ) {
+    const lo = this.lo.getContext("2d")!
+    this.drawWorld(lo, opts)
+
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = "high"
+    ctx.drawImage(this.lo, 0, 0, VIEW_W * SCALE, VIEW_H * SCALE)
+
+    this.drawOverlay(ctx, opts)
+  }
+
+  /** Crisp, full-resolution text on top of the softened world. */
+  private text(
+    ctx: CanvasRenderingContext2D,
+    str: string,
+    x: number,
+    y: number,
+    size: number,
+    color: string,
+    align: CanvasTextAlign = "center"
+  ) {
+    ctx.font = `700 ${size * SCALE}px "Courier New", ui-monospace, monospace`
+    ctx.textAlign = align
+    ctx.textBaseline = "middle"
+    ctx.lineJoin = "round"
+    ctx.lineWidth = Math.max(2, size * SCALE * 0.22)
+    ctx.strokeStyle = "rgba(10,10,30,.95)"
+    ctx.strokeText(str, x * SCALE, y * SCALE)
+    ctx.fillStyle = color
+    ctx.fillText(str, x * SCALE, y * SCALE)
+  }
+
+  private box(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    accent: string
+  ) {
+    ctx.fillStyle = "rgba(14,16,40,.94)"
+    ctx.fillRect(x * SCALE, y * SCALE, w * SCALE, h * SCALE)
+    ctx.fillStyle = accent
+    ctx.fillRect(x * SCALE, y * SCALE, w * SCALE, SCALE * 0.7)
+    ctx.strokeStyle = "rgba(255,255,255,.18)"
+    ctx.lineWidth = 1
+    ctx.strokeRect(x * SCALE + 0.5, y * SCALE + 0.5, w * SCALE, h * SCALE)
+  }
+
+  private drawOverlay(
+    ctx: CanvasRenderingContext2D,
+    opts: { nearNpc: string | null; talkingNpc: string | null }
+  ) {
+    const w = this.world
+
+    for (const sg of this.signs) {
+      const tw = sg.text.length * 3.6 + 5
+      this.box(ctx, sg.cx - tw / 2, sg.y - 0.5, tw, 8, sg.color)
+      this.text(ctx, sg.text, sg.cx, sg.y + 4, 5, "#fff")
+    }
+
     if (opts.nearNpc && !opts.talkingNpc) {
       const n = this.proc.npcs[opts.nearNpc]
-      const label = "[E] SPRECHEN"
-      const lw = textWidth(label) + 4
-      const lx = Math.max(
-        1,
-        Math.min(VIEW_W - lw - 1, n.at[0] * TILE + 8 - lw / 2)
+      const label = "[E] Sprechen"
+      const lw = label.length * 4.3 + 6
+      const cx = Math.max(
+        lw / 2 + 1,
+        Math.min(VIEW_W - lw / 2 - 1, n.at[0] * TILE + 8)
       )
-      const ly = n.at[1] * TILE - 12
-      rect(ctx, "#1a1c30", lx, ly, lw, 9)
-      rect(ctx, "#ffd866", lx, ly, lw, 1)
-      drawText(ctx, label, lx + 2, ly + 2, "#fff")
+      const ly = n.at[1] * TILE - 23
+      this.box(ctx, cx - lw / 2, ly, lw, 10, "#ffd866")
+      this.text(ctx, label, cx, ly + 5.5, 6, "#fff")
     }
 
-    // popups
     for (const p of w.popups) {
       const k = p.age / 1.2
-      drawText(
+      ctx.globalAlpha = Math.min(1, 2 - k * 1.6)
+      this.text(
         ctx,
         p.text,
-        p.x * TILE + 2,
+        p.x * TILE + 8,
         p.y * TILE - 6 - k * 14,
-        p.color,
-        "#000"
+        8,
+        p.color
       )
+      ctx.globalAlpha = 1
     }
-
-    ctx.drawImage(this.vignette, 0, 0)
   }
 }

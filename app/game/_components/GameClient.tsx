@@ -16,7 +16,7 @@ import {
   type GameState,
 } from "../_game/engine"
 import { TILE } from "../_game/map"
-import { Renderer, VIEW_H, VIEW_W } from "../_game/render"
+import { Renderer, SCALE, VIEW_H, VIEW_W } from "../_game/render"
 import type { Dir, Process } from "../_game/schema"
 import { validateProcess } from "../_game/validate"
 import { World } from "../_game/world"
@@ -389,8 +389,8 @@ export function GameClient() {
       <div className={styles.stage}>
         <canvas
           ref={canvasRef}
-          width={VIEW_W}
-          height={VIEW_H}
+          width={VIEW_W * SCALE}
+          height={VIEW_H * SCALE}
           className={styles.canvas}
           onClick={(e) => {
             if (mode !== "play" || state.dialog || state.finished) return
