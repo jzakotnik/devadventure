@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react"
 import type { DialogView } from "../_game/engine"
-import type { Npc } from "../_game/schema"
+import type { NpcLook } from "../_game/schema"
 import styles from "../game.module.css"
 import { Portrait } from "./Portrait"
 
 interface Props {
   dialog: DialogView
-  npc: Omit<Npc, "id">
+  npc: { name: string; title: string; look: NpcLook }
   onChoose: (index: number) => void
   onAdvance: () => void
   onBlip: (i: number) => void

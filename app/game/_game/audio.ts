@@ -77,6 +77,16 @@ export class Sound {
   bad() {
     this.tone(220, 0.25, "sawtooth", 0.05, 0, 110)
   }
+  alert() {
+    ;[880, 660, 880].forEach((f, i) =>
+      this.tone(f, 0.09, "square", 0.05, i * 0.1)
+    )
+  }
+  achievement() {
+    ;[784, 988, 1175, 1568].forEach((f, i) =>
+      this.tone(f, 0.14, "square", 0.05, i * 0.07)
+    )
+  }
   fanfare() {
     ;[523, 523, 523, 659, 784, 659, 784, 1047].forEach((f, i) =>
       this.tone(f, 0.18, "square", 0.06, i * 0.12)

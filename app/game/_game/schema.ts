@@ -46,6 +46,10 @@ export interface Choice {
   result?: string
   /** Continue with another dialog node. */
   goto?: string
+  /** Change of revision rounds (events). */
+  round?: number
+  /** Sets a flag (used by achievements). */
+  flag?: string
 }
 
 export interface DialogNode {
@@ -115,4 +119,53 @@ export interface Process {
   npcs: Record<string, Omit<Npc, "id">>
   stages: Stage[]
   dialogs: Record<string, DialogNode>
+  events: GameEvent[]
+  eventSettings: EventSettings
+  achievements: Achievement[]
+}
+
+/* ---------------------------------------------------------- random events */
+
+export interface GameEvent {
+  id: string
+  title: string
+  icon: string
+  /** Who "speaks": shown in the dialog box. */
+  speaker: { name: string; title: string; look: NpcLook }
+  text: string
+  choices: Choice[]
+  /** Only in these stages (omit = any). */
+  stages?: string[]
+  requiresDoc?: boolean
+  weight?: number
+}
+
+export interface EventSettings {
+  /** Steps walked between events: random in [minSteps, maxSteps]. */
+  minSteps: number
+  maxSteps: number
+  maxPerRun: number
+}
+
+/* ----------------------------------------------------------- achievements */
+
+/** All given fields must hold (AND). Stats: see `statsView` in engine.ts. */
+export interface AchievementRule {
+  stat?: string
+  gte?: number
+  statAtMost?: Record<string, number>
+  finished?: "success" | "failed"
+  roundsAtMost?: number
+  roundsAtLeast?: number
+  scoreAtLeast?: number
+  flag?: string
+  roomsVisited?: number
+}
+
+export interface Achievement {
+  id: string
+  title: string
+  description: string
+  icon: string
+  rule: AchievementRule
 }

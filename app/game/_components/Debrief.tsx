@@ -9,11 +9,13 @@ export function Debrief({
   state,
   best,
   onRestart,
+  onShowAchievements,
 }: {
   proc: Process
   state: GameState
   best: number | null
   onRestart: () => void
+  onShowAchievements: () => void
 }) {
   const f = state.finished!
   const ok = f.outcome === "success"
@@ -51,6 +53,21 @@ export function Debrief({
           TIPPS <b>{state.hintsUsed}</b>
         </li>
       </ul>
+      {state.unlocked.length > 0 && (
+        <>
+          <h3>Erfolge in dieser Runde</h3>
+          <ul className={styles.achRow}>
+            {state.unlocked.map((id) => {
+              const a = proc.achievements.find((x) => x.id === id)!
+              return (
+                <li key={id} title={a.description}>
+                  <span>{a.icon}</span> {a.title}
+                </li>
+              )
+            })}
+          </ul>
+        </>
+      )}
       <h3>Deine Entscheidungen</h3>
       <ol className={styles.log}>
         {state.log.map((l, i) => (
@@ -69,6 +86,9 @@ export function Debrief({
           </li>
         ))}
       </ol>
+      <button className={styles.ghostBtn} onClick={onShowAchievements}>
+        🏆 ALLE ERFOLGE
+      </button>
       <button className={styles.startBtn} onClick={onRestart}>
         ▶ NOCHMAL SPIELEN
       </button>

@@ -58,5 +58,27 @@ export function validateProcess(proc: Process): string[] {
       if (!stageIds.has(sid))
         errors.push(`pipeline ${step.label}: unknown stage ${sid}`)
   }
+
+  const flags = new Set<string>()
+  for (const ev of proc.events) {
+    for (const c of ev.choices) if (c.flag) flags.add(c.flag)
+    if (ev.choices.length < 1 || ev.choices.length > 4)
+      errors.push(`event ${ev.id}: needs 1-4 choices`)
+    for (const sid of ev.stages ?? [])
+      if (!stageIds.has(sid))
+        errors.push(`event ${ev.id}: unknown stage ${sid}`)
+  }
+  const { minSteps, maxSteps } = proc.eventSettings
+  if (minSteps > maxSteps) errors.push("eventSettings: minSteps > maxSteps")
+
+  const ids = new Set<string>()
+  for (const a of proc.achievements) {
+    if (ids.has(a.id)) errors.push(`achievement ${a.id}: duplicate id`)
+    ids.add(a.id)
+    if (a.rule.flag && !flags.has(a.rule.flag))
+      errors.push(`achievement ${a.id}: flag ${a.rule.flag} is never set`)
+    if (a.rule.roomsVisited && a.rule.roomsVisited > proc.rooms.length)
+      errors.push(`achievement ${a.id}: more rooms than exist`)
+  }
   return errors
 }

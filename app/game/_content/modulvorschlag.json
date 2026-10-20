@@ -660,5 +660,399 @@
         }
       ]
     }
-  }
+  },
+  "eventSettings": {
+    "minSteps": 28,
+    "maxSteps": 50,
+    "maxPerRun": 4
+  },
+  "events": [
+    {
+      "id": "printer",
+      "title": "Druckerstau",
+      "icon": "🖨️",
+      "speaker": {
+        "name": "Drucker",
+        "title": "Papierstau!",
+        "look": {
+          "shirt": "#d0d4e0",
+          "pants": "#60647a",
+          "hair": "#d0d4e0",
+          "skin": "#d0d4e0"
+        }
+      },
+      "text": "Piep! Der Drucker blinkt rot und Papier quillt heraus. Hinter dir bildet sich eine kleine Schlange.",
+      "choices": [
+        {
+          "text": "Selbst Hand anlegen und den Stau beheben.",
+          "reply": "Klack – und es läuft wieder. Die Kolleg:innen sind dankbar.",
+          "score": 4,
+          "flag": "printer_fixed",
+          "learn": "Kleine Hilfen im Alltag stärken die Zusammenarbeit – und die brauchst du für Freigaben."
+        },
+        {
+          "text": "Den IT-Support rufen.",
+          "reply": "Der Support kommt in 20 Minuten. Passt.",
+          "score": 1,
+          "learn": "Richtig eskalieren ist auch eine Fähigkeit – Hauptsache, es bleibt nicht liegen."
+        },
+        {
+          "text": "Einfach vorbeigehen.",
+          "reply": "Hinter dir wird gemurrt…",
+          "score": -2,
+          "learn": "Wegschauen kostet Vertrauen im Team."
+        }
+      ]
+    },
+    {
+      "id": "status",
+      "title": "Statusabfrage",
+      "icon": "💬",
+      "speaker": {
+        "name": "Tom",
+        "title": "Kollege aus dem Vertrieb",
+        "look": {
+          "shirt": "#d8884a",
+          "pants": "#303848",
+          "hair": "#201810",
+          "skin": "#e8b890"
+        }
+      },
+      "text": "Hey! Kurze Frage: Wie weit ist der Modulvorschlag? Mein Kunde fragt schon nach.",
+      "choices": [
+        {
+          "text": "Kurz und ehrlich: Stand, nächster Schritt, geschätzter Termin.",
+          "reply": "„Perfekt, genau das brauche ich!“",
+          "score": 5,
+          "learn": "Proaktive, ehrliche Statusinfos verhindern Rückfragen und Eskalationen."
+        },
+        {
+          "text": "Das dauert noch, frag später nochmal.",
+          "reply": "Tom zuckt mit den Schultern.",
+          "score": -2,
+          "learn": "Vertrösten ohne Information erzeugt Nachfragen."
+        },
+        {
+          "text": "Ich zeige dir das Dokument.",
+          "reply": "„Okay, aber ich verstehe nicht alles…“",
+          "score": 1,
+          "learn": "Ein Dokument ersetzt keine Einordnung."
+        }
+      ]
+    },
+    {
+      "id": "partnermail",
+      "title": "Dringende Partner-Mail",
+      "icon": "📧",
+      "speaker": {
+        "name": "Postfach",
+        "title": "Neue Nachricht",
+        "look": {
+          "shirt": "#4a8ad8",
+          "pants": "#303848",
+          "hair": "#303848",
+          "skin": "#e8b890"
+        }
+      },
+      "text": "Ein Partner (PEA) schreibt: „Bitte um kurze Rückmeldung zum aktuellen Stand – wir planen Ressourcen.“",
+      "choices": [
+        {
+          "text": "Sofort kurz antworten und einen Termin nennen.",
+          "reply": "Der Partner bedankt sich für die schnelle Antwort.",
+          "score": 4,
+          "learn": "Schnelle Rückmeldung schafft Planbarkeit beim Partner."
+        },
+        {
+          "text": "Erst nach der Freigabe antworten.",
+          "reply": "Der Partner wartet… und wird ungeduldig.",
+          "score": -3,
+          "learn": "Partner wollen Zwischenstände, nicht nur Ergebnisse."
+        }
+      ],
+      "stages": [
+        "bmz_review",
+        "rework_bmz",
+        "pea_review",
+        "rework_pea",
+        "tl_approval",
+        "rework_tl"
+      ]
+    },
+    {
+      "id": "fire",
+      "title": "Probealarm",
+      "icon": "🚨",
+      "speaker": {
+        "name": "Lautsprecher",
+        "title": "Brandschutz-Übung",
+        "look": {
+          "shirt": "#d84a4a",
+          "pants": "#303848",
+          "hair": "#303848",
+          "skin": "#e8b890",
+          "accessory": "cap"
+        }
+      },
+      "text": "WÄÄÄÄH! Probealarm: Alle Mitarbeitenden werden gebeten, das Gebäude zu verlassen.",
+      "choices": [
+        {
+          "text": "Mappe sichern, Weg folgen, ab zum Sammelplatz.",
+          "reply": "Alles ruhig, alle sind vollzählig. Gut gemacht!",
+          "score": 5,
+          "learn": "Sicherheitsregeln gelten für alle – auch bei Termindruck."
+        },
+        {
+          "text": "Schnell noch die Mail zu Ende schreiben.",
+          "reply": "Der Brandschutzbeauftragte schaut streng.",
+          "score": -5,
+          "learn": "Nichts im Büro ist wichtiger als ein Alarm."
+        }
+      ]
+    },
+    {
+      "id": "version",
+      "title": "Versionschaos",
+      "icon": "📄",
+      "speaker": {
+        "name": "Lena Fischer",
+        "title": "Projektassistenz",
+        "look": {
+          "shirt": "#e8a838",
+          "pants": "#3a3f5c",
+          "hair": "#6b3a1e",
+          "skin": "#f0c8a0",
+          "accessory": "bow"
+        }
+      },
+      "text": "Lena ruft: „Warte! Im Anhang war noch eine ältere Version. Bist du sicher, dass du die aktuelle dabeihast?“",
+      "choices": [
+        {
+          "text": "Versionsnummer kurz prüfen – ja, alles aktuell.",
+          "reply": "„Super, dann kann nichts schiefgehen.“",
+          "score": 5,
+          "learn": "Version prüfen vor dem Versand: einfacher Check, große Wirkung."
+        },
+        {
+          "text": "Wird schon passen.",
+          "reply": "Lena schaut skeptisch. Später fällt es auf…",
+          "score": -5,
+          "round": 1,
+          "learn": "Veraltete Versionen kosten eine komplette Prüfrunde."
+        }
+      ],
+      "requiresDoc": true
+    },
+    {
+      "id": "intern",
+      "title": "Neue Kollegin",
+      "icon": "🙋",
+      "speaker": {
+        "name": "Mia",
+        "title": "Praktikantin",
+        "look": {
+          "shirt": "#38b8a8",
+          "pants": "#303848",
+          "hair": "#e0a020",
+          "skin": "#f0c8a0"
+        }
+      },
+      "text": "Hallo! Ich bin neu. Kannst du mir kurz erklären, wie ein Modulvorschlag durch das Haus kommt?",
+      "choices": [
+        {
+          "text": "Klar: BMZ prüft, Partner gibt Feedback, Teamleitung genehmigt.",
+          "reply": "„Danke, das war super verständlich!“",
+          "score": 4,
+          "learn": "Wissen weitergeben festigt den Prozess für alle."
+        },
+        {
+          "text": "Frag bitte jemand anderen, ich habe zu tun.",
+          "reply": "Mia nickt, etwas enttäuscht.",
+          "score": -1,
+          "learn": "Wissen teilen kostet kaum Zeit – spart aber viel später."
+        }
+      ]
+    },
+    {
+      "id": "coffee",
+      "title": "Gratis-Kaffee",
+      "icon": "☕",
+      "speaker": {
+        "name": "Karl",
+        "title": "Pausenraum",
+        "look": {
+          "shirt": "#e0d8c0",
+          "pants": "#506080",
+          "hair": "#808080",
+          "skin": "#e8b890",
+          "accessory": "cap"
+        }
+      },
+      "text": "Karl winkt dir zu: „Die Maschine hat sich verzählt – dein Kaffee ist heute gratis!“",
+      "choices": [
+        {
+          "text": "Danke, das tut gut!",
+          "reply": "Der Kaffee wärmt. Du fühlst dich bereit für die nächste Runde.",
+          "score": 3,
+          "learn": "Kleine Pausen halten den Kopf klar – auch im Prozessstress."
+        }
+      ]
+    },
+    {
+      "id": "privacy",
+      "title": "Datenschutz",
+      "icon": "🔒",
+      "speaker": {
+        "name": "Datenschutz",
+        "title": "Hinweis",
+        "look": {
+          "shirt": "#8a6ad8",
+          "pants": "#303848",
+          "hair": "#303848",
+          "skin": "#e8b890",
+          "accessory": "glasses"
+        }
+      },
+      "text": "Du willst das Dokument an einen externen Kontakt schicken. Es enthält vertrauliche Finanzzahlen.",
+      "choices": [
+        {
+          "text": "Über den gesicherten Austausch senden.",
+          "reply": "Verschlüsselt und nachvollziehbar – so soll es sein.",
+          "score": 5,
+          "learn": "Vertrauliche Unterlagen nur über gesicherte Wege."
+        },
+        {
+          "text": "Normale Mail reicht, geht schneller.",
+          "reply": "Das war riskant! Datenschutz meldet sich bei dir.",
+          "score": -5,
+          "round": 1,
+          "learn": "Datenschutzverstöße führen zu Nacharbeit und Ärger."
+        }
+      ],
+      "requiresDoc": true
+    }
+  ],
+  "achievements": [
+    {
+      "id": "first_talk",
+      "title": "Erster Kontakt",
+      "description": "Sprich zum ersten Mal mit einer Kollegin oder einem Kollegen.",
+      "icon": "👋",
+      "rule": {
+        "stat": "talks",
+        "gte": 1
+      }
+    },
+    {
+      "id": "tour",
+      "title": "Hausrundgang",
+      "description": "Betritt alle sechs Räume im Haus.",
+      "icon": "🏢",
+      "rule": {
+        "roomsVisited": 6
+      }
+    },
+    {
+      "id": "runner",
+      "title": "Büro-Marathon",
+      "description": "Laufe in einer Runde 300 Schritte.",
+      "icon": "👟",
+      "rule": {
+        "stat": "steps",
+        "gte": 300
+      }
+    },
+    {
+      "id": "coffee",
+      "title": "Kaffeepause",
+      "description": "Hole dir einen Tipp bei Karl.",
+      "icon": "☕",
+      "rule": {
+        "stat": "hints",
+        "gte": 1
+      }
+    },
+    {
+      "id": "curious",
+      "title": "Wissbegierig",
+      "description": "Lass dir vom Archivar drei Prozess-Fakten erzählen.",
+      "icon": "📚",
+      "rule": {
+        "stat": "facts",
+        "gte": 3
+      }
+    },
+    {
+      "id": "crisis",
+      "title": "Krisenmanager:in",
+      "description": "Meistere zwei Zwischenfälle richtig.",
+      "icon": "🛟",
+      "rule": {
+        "stat": "eventsGood",
+        "gte": 2
+      }
+    },
+    {
+      "id": "printer",
+      "title": "Drucker-Flüsterer:in",
+      "description": "Beheb den Papierstau eigenhändig.",
+      "icon": "🖨️",
+      "rule": {
+        "flag": "printer_fixed"
+      }
+    },
+    {
+      "id": "clean",
+      "title": "Makellos",
+      "description": "Erhalte die Freigabe ohne eine einzige Überarbeitungsrunde.",
+      "icon": "💎",
+      "rule": {
+        "finished": "success",
+        "roundsAtMost": 0
+      }
+    },
+    {
+      "id": "alone",
+      "title": "Ohne Hilfe",
+      "description": "Erhalte die Freigabe, ohne einen Tipp zu kaufen.",
+      "icon": "🧠",
+      "rule": {
+        "finished": "success",
+        "statAtMost": {
+          "hints": 0
+        }
+      }
+    },
+    {
+      "id": "direct",
+      "title": "Zielstrebig",
+      "description": "Erhalte die Freigabe, ohne je zur falschen Person zu gehen.",
+      "icon": "🎯",
+      "rule": {
+        "finished": "success",
+        "statAtMost": {
+          "wrongVisits": 0
+        }
+      }
+    },
+    {
+      "id": "highscore",
+      "title": "Punktejäger:in",
+      "description": "Beende den Prozess mit mindestens 70 Punkten.",
+      "icon": "🏆",
+      "rule": {
+        "finished": "success",
+        "scoreAtLeast": 70
+      }
+    },
+    {
+      "id": "grit",
+      "title": "Durchhalter:in",
+      "description": "Erhalte die Freigabe trotz mindestens zwei Überarbeitungsrunden.",
+      "icon": "💪",
+      "rule": {
+        "finished": "success",
+        "roundsAtLeast": 2
+      }
+    }
+  ]
 }

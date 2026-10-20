@@ -4,10 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import raw from "../_content/modulvorschlag.json"
 import { Sound } from "../_game/audio"
 import {
+  addSteps,
   advance,
   choose,
   createState,
+  enterRoom,
+  pickEvent,
   stageOf,
+  startEvent,
   startTalk,
   type GameState,
 } from "../_game/engine"
@@ -18,9 +22,18 @@ import { validateProcess } from "../_game/validate"
 import { World } from "../_game/world"
 import styles from "../game.module.css"
 import { DialogBox } from "./DialogBox"
+import { Achievements } from "./Achievements"
 import { Debrief } from "./Debrief"
 
 const proc = raw as unknown as Process
+
+function banners0(fresh: Array<{ seq: number; id: string }>, known: string[]) {
+  return fresh.map((f) => ({
+    key: f.seq + Date.now(),
+    id: f.id,
+    isNew: !known.includes(f.id),
+  }))
+}
 
 if (process.env.NODE_ENV !== "production") {
   const errs = validateProcess(proc)
@@ -58,16 +71,44 @@ export function GameClient() {
   const modeRef = useRef(mode)
   const prevRef = useRef(state)
   const closedAt = useRef(0)
+  const showAchRef = useRef(false)
+  const stepsRef = useRef(0)
+  const sinceEventRef = useRef(0)
+  const nextEventRef = useRef(0)
+  const lastRoomRef = useRef<string | null>(null)
+  const lastFlushRef = useRef(0)
+  const feedSeenRef = useRef(0)
+  const [allUnlocked, setAllUnlocked] = useState<string[]>([])
+  const [banners, setBanners] = useState<
+    Array<{ key: number; id: string; isNew: boolean }>
+  >([])
+  const [showAch, setShowAch] = useState(false)
+  const allUnlockedRef = useRef<string[]>([])
 
   useEffect(() => {
     stateRef.current = state
     modeRef.current = mode
+    showAchRef.current = showAch
   })
 
   const update = useCallback((fn: (s: GameState) => GameState) => {
     const next = fn(stateRef.current)
     stateRef.current = next
     setState(next)
+  }, [])
+
+  // load persisted achievements
+  useEffect(() => {
+    try {
+      const v = JSON.parse(
+        localStorage.getItem(`bueroquest:ach:${proc.id}`) ?? "[]"
+      )
+      if (Array.isArray(v)) {
+        allUnlockedRef.current = v
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setAllUnlocked(v)
+      }
+    } catch {}
   }, [])
 
   // load best score
@@ -87,7 +128,18 @@ export function GameClient() {
     const sound = new Sound()
     worldRef.current = world
     soundRef.current = sound
-    world.onStep = () => sound.stepSfx()
+    const resetEventTimer = () => {
+      const { minSteps, maxSteps } = proc.eventSettings
+      sinceEventRef.current = 0
+      nextEventRef.current =
+        minSteps + Math.floor(Math.random() * (maxSteps - minSteps + 1))
+    }
+    resetEventTimer()
+    world.onStep = () => {
+      sound.stepSfx()
+      stepsRef.current++
+      sinceEventRef.current++
+    }
     world.onDoor = () => sound.door()
     const renderer = new Renderer(proc, world)
     let last = performance.now()
@@ -99,6 +151,35 @@ export function GameClient() {
       const s = stateRef.current
       const playing = modeRef.current === "play"
       const talk = world.update(dt, !playing || !!s.dialog || !!s.finished)
+      if (playing && !s.finished) {
+        const room = world.map.roomAt(world.x, world.y)
+        if (room && room !== lastRoomRef.current) {
+          lastRoomRef.current = room
+          update((cur) => enterRoom(proc, cur, room))
+        }
+        if (stepsRef.current > 0 && now - lastFlushRef.current > 1000) {
+          lastFlushRef.current = now
+          const n = stepsRef.current
+          stepsRef.current = 0
+          update((cur) => addSteps(proc, cur, n))
+        }
+        if (
+          !s.dialog &&
+          !world.moving &&
+          sinceEventRef.current >= nextEventRef.current
+        ) {
+          const id = pickEvent(proc, s, Math.random())
+          resetEventTimer()
+          if (id) {
+            world.held = []
+            world.path = []
+            world.pendingTalk = null
+            world.addPopup("!", "#ffd866")
+            sound.alert()
+            update((cur) => startEvent(proc, cur, id))
+          }
+        }
+      }
       if (talk) {
         sound.talk()
         update((cur) => startTalk(proc, cur, talk))
@@ -143,6 +224,32 @@ export function GameClient() {
     }
   }, [state])
 
+  // achievement announcements + persistence
+  const feedLen = state.unlockFeed.length
+  useEffect(() => {
+    if (feedLen < feedSeenRef.current) feedSeenRef.current = 0
+    const fresh = stateRef.current.unlockFeed.slice(feedSeenRef.current)
+    feedSeenRef.current = feedLen
+    if (!fresh.length) return
+    const known = allUnlockedRef.current
+    const added = banners0(fresh, known)
+    soundRef.current?.achievement()
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setBanners((b) => [...b, ...added])
+    const merged = Array.from(new Set([...known, ...fresh.map((f) => f.id)]))
+    allUnlockedRef.current = merged
+    setAllUnlocked(merged)
+    try {
+      localStorage.setItem(`bueroquest:ach:${proc.id}`, JSON.stringify(merged))
+    } catch {}
+    const keys = added.map((a) => a.key)
+    const t = setTimeout(
+      () => setBanners((b) => b.filter((x) => !keys.includes(x.key))),
+      4500
+    )
+    return () => clearTimeout(t)
+  }, [feedLen])
+
   // toast lifetime
   const toastId = state.toast?.id
   useEffect(() => {
@@ -178,6 +285,11 @@ export function GameClient() {
     sound.talk()
     sound.startMusic()
     worldRef.current?.reset()
+    stepsRef.current = 0
+    sinceEventRef.current = 0
+    lastRoomRef.current = null
+    feedSeenRef.current = 0
+    setBanners([])
     update(() => createState(proc))
     prevRef.current = stateRef.current
     setToast(null)
@@ -194,6 +306,10 @@ export function GameClient() {
         const next = !soundRef.current!.muted
         soundRef.current!.setMuted(next)
         setMuted(next)
+        return
+      }
+      if (showAchRef.current) {
+        if (e.key === "Escape") setShowAch(false)
         return
       }
       if (m === "title") {
@@ -261,7 +377,9 @@ export function GameClient() {
   const onBlip = useCallback((i: number) => soundRef.current?.blip(i), [])
 
   const stage = stageOf(proc, state)
-  const dialogNpc = state.dialog ? proc.npcs[state.dialog.npcId] : null
+  const dialogNpc = state.dialog
+    ? (state.dialog.speaker ?? proc.npcs[state.dialog.npcId])
+    : null
   const currentStep = proc.pipeline.findIndex((p) =>
     p.stages.includes(state.stageId)
   )
@@ -326,6 +444,12 @@ export function GameClient() {
                 </b>
               </div>
               <div>
+                ERFOLGE{" "}
+                <b>
+                  {state.unlocked.length}/{proc.achievements.length}
+                </b>
+              </div>
+              <div>
                 DOKUMENT <b>{state.hasDoc ? `v${state.docVersion}` : "–"}</b>
               </div>
               <button
@@ -338,6 +462,23 @@ export function GameClient() {
               >
                 {muted ? "TON AUS" : "TON AN"} [M]
               </button>
+            </div>
+            <div className={styles.banners}>
+              {banners.map((b) => {
+                const a = proc.achievements.find((x) => x.id === b.id)!
+                return (
+                  <div key={b.key} className={styles.banner}>
+                    <span className={styles.bannerIcon}>{a.icon}</span>
+                    <div>
+                      <div className={styles.bannerHead}>
+                        ERFOLG FREIGESCHALTET{b.isNew ? " · NEU!" : ""}
+                      </div>
+                      <b>{a.title}</b>
+                      <div className={styles.bannerDesc}>{a.description}</div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
             {toast && (
               <div
@@ -373,6 +514,12 @@ export function GameClient() {
                 <p key={t}>{t}</p>
               ))}
             </div>
+            <button
+              className={styles.ghostBtn}
+              onClick={() => setShowAch(true)}
+            >
+              🏆 ERFOLGE {allUnlocked.length}/{proc.achievements.length}
+            </button>
             <button className={styles.startBtn} onClick={start}>
               ▶ ENTER = START
             </button>
@@ -387,7 +534,22 @@ export function GameClient() {
         )}
 
         {mode === "end" && state.finished && (
-          <Debrief proc={proc} state={state} best={best} onRestart={start} />
+          <Debrief
+            proc={proc}
+            state={state}
+            best={best}
+            onRestart={start}
+            onShowAchievements={() => setShowAch(true)}
+          />
+        )}
+
+        {showAch && (
+          <Achievements
+            proc={proc}
+            unlocked={allUnlocked}
+            thisRun={mode === "end" ? state.unlocked : []}
+            onClose={() => setShowAch(false)}
+          />
         )}
       </div>
     </main>

@@ -373,3 +373,118 @@
   color: #9ac8ff;
   font-size: 1.05cqw;
 }
+
+/* ---------- achievements */
+.banners {
+  position: absolute;
+  right: 1cqw;
+  top: 18cqw;
+  display: grid;
+  gap: 0.6cqw;
+  pointer-events: none;
+  z-index: 5;
+}
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 1cqw;
+  background: rgba(14, 16, 44, 0.97);
+  border: 0.25cqw solid #ffd866;
+  padding: 0.7cqw 1.2cqw;
+  font-size: 1.2cqw;
+  max-width: 34cqw;
+  animation: slideIn 0.3s ease-out;
+  box-shadow: 0 0 2cqw rgba(255, 216, 102, 0.4);
+}
+.bannerIcon {
+  font-size: 3cqw;
+}
+.bannerHead {
+  color: #ffd866;
+  font-size: 0.9cqw;
+}
+.bannerDesc {
+  color: #9aa0d8;
+  font-size: 0.95cqw;
+  font-weight: 400;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(40cqw);
+  }
+}
+.ghostBtn {
+  margin-top: 1.5cqw;
+  font: inherit;
+  font-size: 1.2cqw;
+  padding: 0.5cqw 1.6cqw;
+  color: #ffd866;
+  background: transparent;
+  border: 0.2cqw solid #ffd866;
+  cursor: pointer;
+}
+.gallery {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 5, 16, 0.97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.galleryBox {
+  width: min(82cqw, 100%);
+  max-height: 94%;
+  overflow-y: auto;
+  text-align: center;
+  padding: 2cqw;
+}
+.galleryBox h2 {
+  font-size: 2.6cqw;
+  color: #ffd866;
+  margin: 0 0 1.2cqw;
+}
+.achGrid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8cqw;
+  text-align: left;
+}
+.achGrid li {
+  display: flex;
+  gap: 1cqw;
+  align-items: center;
+  padding: 0.7cqw 1cqw;
+  font-size: 1.05cqw;
+  border: 0.2cqw solid #3a3f80;
+  background: rgba(30, 33, 80, 0.8);
+}
+.achOn {
+  border-color: #ffd866 !important;
+}
+.achOff {
+  opacity: 0.55;
+}
+.achIcon {
+  font-size: 2.4cqw;
+}
+.achGrid b {
+  color: #ffd866;
+}
+.achRow {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6cqw;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+.achRow li {
+  border: 0.2cqw solid #ffd866;
+  padding: 0.3cqw 0.9cqw;
+  background: rgba(30, 33, 80, 0.8);
+}

@@ -33,3 +33,15 @@ Arrows / WASD move · E, Enter or click an NPC to talk · 1–3 or click to answ
 - `dialogs{}`: nodes with `choices[]` (`reply`, `learn`, `score`, `result` or `goto`).
 - `roundLimit`: more revision rounds than this ends the game without approval.
 - NPC `role: "hint"` sells a hint (−2), `role: "fact"` gives a bonus fact (+3 once per stage).
+
+## Random events and achievements
+
+- `events[]`: random incidents (printer jam, status request, fire drill, ...). They
+  fire after `eventSettings.minSteps`–`maxSteps` walked steps, at most `maxPerRun` per run,
+  never twice, never during the intake stage. Optional `stages` / `requiresDoc` limit
+  when an event can appear. Choices use the normal dialog fields plus `round` (±revision
+  rounds) and `flag` (for achievements).
+- `achievements[]`: declarative `rule`s (all given fields must hold): `stat`+`gte`
+  (`talks`, `steps`, `hints`, `facts`, `eventsGood`, `eventsBad`, `events`, `wrongVisits`),
+  `statAtMost`, `finished`, `roundsAtMost/AtLeast`, `scoreAtLeast`, `flag`, `roomsVisited`.
+  Unlocks are announced in-game and stored in `localStorage` (`bueroquest:ach:<process id>`).
