@@ -1,0 +1,395 @@
+"use client"
+
+import { useCallback, useEffect, useRef, useState } from "react"
+import raw from "../_content/modulvorschlag.json"
+import { Sound } from "../_game/audio"
+import {
+  advance,
+  choose,
+  createState,
+  stageOf,
+  startTalk,
+  type GameState,
+} from "../_game/engine"
+import { TILE } from "../_game/map"
+import { Renderer, VIEW_H, VIEW_W } from "../_game/render"
+import type { Dir, Process } from "../_game/schema"
+import { validateProcess } from "../_game/validate"
+import { World } from "../_game/world"
+import styles from "../game.module.css"
+import { DialogBox } from "./DialogBox"
+import { Debrief } from "./Debrief"
+
+const proc = raw as unknown as Process
+
+if (process.env.NODE_ENV !== "production") {
+  const errs = validateProcess(proc)
+  if (errs.length)
+    console.error("[game] invalid process definition:\n" + errs.join("\n"))
+}
+
+type Mode = "title" | "play" | "end"
+
+const KEYS: Record<string, Dir> = {
+  ArrowUp: "up",
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+  w: "up",
+  s: "down",
+  a: "left",
+  d: "right",
+  W: "up",
+  S: "down",
+  A: "left",
+  D: "right",
+}
+
+export function GameClient() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const worldRef = useRef<World | null>(null)
+  const soundRef = useRef<Sound | null>(null)
+  const [mode, setMode] = useState<Mode>("title")
+  const [state, setState] = useState<GameState>(() => createState(proc))
+  const [muted, setMuted] = useState(false)
+  const [toast, setToast] = useState<GameState["toast"]>(null)
+  const [best, setBest] = useState<number | null>(null)
+  const stateRef = useRef(state)
+  const modeRef = useRef(mode)
+  const prevRef = useRef(state)
+  const closedAt = useRef(0)
+
+  useEffect(() => {
+    stateRef.current = state
+    modeRef.current = mode
+  })
+
+  const update = useCallback((fn: (s: GameState) => GameState) => {
+    const next = fn(stateRef.current)
+    stateRef.current = next
+    setState(next)
+  }, [])
+
+  // load best score
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem(`bueroquest:best:${proc.id}`)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (v) setBest(Number(v))
+    } catch {}
+  }, [])
+
+  // game loop
+  useEffect(() => {
+    const canvas = canvasRef.current!
+    const ctx = canvas.getContext("2d")!
+    const world = new World(proc)
+    const sound = new Sound()
+    worldRef.current = world
+    soundRef.current = sound
+    world.onStep = () => sound.stepSfx()
+    world.onDoor = () => sound.door()
+    const renderer = new Renderer(proc, world)
+    let last = performance.now()
+    let raf = 0
+
+    const frame = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000)
+      last = now
+      const s = stateRef.current
+      const playing = modeRef.current === "play"
+      const talk = world.update(dt, !playing || !!s.dialog || !!s.finished)
+      if (talk) {
+        sound.talk()
+        update((cur) => startTalk(proc, cur, talk))
+      }
+      const stage = stageOf(proc, s)
+      renderer.draw(ctx, {
+        targetNpc: playing && !s.dialog && !s.finished ? stage.npc : null,
+        nearNpc:
+          playing && !s.dialog && !s.finished ? world.adjacentNpc() : null,
+        talkingNpc: s.dialog?.npcId ?? null,
+        showPlayer: true,
+      })
+      raf = requestAnimationFrame(frame)
+    }
+    raf = requestAnimationFrame(frame)
+    return () => {
+      cancelAnimationFrame(raf)
+      sound.stopMusic()
+    }
+  }, [update])
+
+  // reactions to state changes: popups and sounds
+  useEffect(() => {
+    const prev = prevRef.current
+    prevRef.current = state
+    if (prev.dialog && !state.dialog) closedAt.current = performance.now()
+    const world = worldRef.current
+    const sound = soundRef.current
+    if (!world || !sound || state === prev) return
+    if (state.score !== prev.score) {
+      const d = state.score - prev.score
+      world.addPopup(`${d > 0 ? "+" : ""}${d}`, d > 0 ? "#7aff9a" : "#ff7a7a")
+      if (d > 0) sound.select()
+    }
+    if (state.toast && state.toast.id !== prev.toast?.id) {
+      if (state.toast.tone === "good") sound.good()
+      else if (state.toast.tone === "bad") sound.bad()
+    }
+    if (state.finished && !prev.finished) {
+      if (state.finished.outcome === "success") sound.fanfare()
+      else sound.fail()
+    }
+  }, [state])
+
+  // toast lifetime
+  const toastId = state.toast?.id
+  useEffect(() => {
+    if (!state.toast) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setToast(state.toast)
+    const t = setTimeout(() => setToast(null), 3800)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toastId])
+
+  // ending: show debrief after a short beat
+  const finished = state.finished
+  useEffect(() => {
+    if (!finished) return
+    const t = setTimeout(() => {
+      setMode("end")
+      try {
+        const k = `bueroquest:best:${proc.id}`
+        const old = Number(localStorage.getItem(k) ?? "0")
+        if (finished.outcome === "success" && stateRef.current.score > old) {
+          localStorage.setItem(k, String(stateRef.current.score))
+          setBest(stateRef.current.score)
+        }
+      } catch {}
+    }, 1500)
+    return () => clearTimeout(t)
+  }, [finished])
+
+  const start = useCallback(() => {
+    const sound = soundRef.current!
+    sound.unlock()
+    sound.talk()
+    sound.startMusic()
+    worldRef.current?.reset()
+    update(() => createState(proc))
+    prevRef.current = stateRef.current
+    setToast(null)
+    setMode("play")
+  }, [update])
+
+  // keyboard
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.repeat && !KEYS[e.key]) return
+      const m = modeRef.current
+      const s = stateRef.current
+      if (e.key === "m" || e.key === "M") {
+        const next = !soundRef.current!.muted
+        soundRef.current!.setMuted(next)
+        setMuted(next)
+        return
+      }
+      if (m === "title") {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          start()
+        }
+        return
+      }
+      if (m !== "play" || s.dialog || s.finished) return
+      if (performance.now() - closedAt.current < 400) return
+      const dir = KEYS[e.key]
+      if (dir) {
+        e.preventDefault()
+        worldRef.current?.press(dir)
+      } else if (
+        e.key === "e" ||
+        e.key === "E" ||
+        e.key === "Enter" ||
+        e.key === " "
+      ) {
+        e.preventDefault()
+        const npc = worldRef.current?.adjacentNpc()
+        if (npc) {
+          worldRef.current!.faceToward(
+            proc.npcs[npc].at[0],
+            proc.npcs[npc].at[1]
+          )
+          soundRef.current?.talk()
+          update((cur) => startTalk(proc, cur, npc))
+        }
+      }
+    }
+    const up = (e: KeyboardEvent) => {
+      const dir = KEYS[e.key]
+      if (dir) worldRef.current?.release(dir)
+    }
+    window.addEventListener("keydown", down)
+    window.addEventListener("keyup", up)
+    return () => {
+      window.removeEventListener("keydown", down)
+      window.removeEventListener("keyup", up)
+    }
+  }, [start, update])
+
+  const tileAt = (e: React.MouseEvent<HTMLCanvasElement>): [number, number] => {
+    const r = e.currentTarget.getBoundingClientRect()
+    return [
+      Math.floor(((e.clientX - r.left) / r.width) * (VIEW_W / TILE)),
+      Math.floor(((e.clientY - r.top) / r.height) * (VIEW_H / TILE)),
+    ]
+  }
+
+  const onChoose = useCallback(
+    (i: number) => {
+      soundRef.current?.select()
+      update((s) => choose(proc, s, i))
+    },
+    [update]
+  )
+  const onAdvance = useCallback(() => {
+    soundRef.current?.select()
+    update((s) => advance(proc, s))
+  }, [update])
+  const onBlip = useCallback((i: number) => soundRef.current?.blip(i), [])
+
+  const stage = stageOf(proc, state)
+  const dialogNpc = state.dialog ? proc.npcs[state.dialog.npcId] : null
+  const currentStep = proc.pipeline.findIndex((p) =>
+    p.stages.includes(state.stageId)
+  )
+
+  return (
+    <main className={styles.page}>
+      <div className={styles.stage}>
+        <canvas
+          ref={canvasRef}
+          width={VIEW_W}
+          height={VIEW_H}
+          className={styles.canvas}
+          onClick={(e) => {
+            if (mode !== "play" || state.dialog || state.finished) return
+            const [tx, ty] = tileAt(e)
+            worldRef.current?.clickTile(tx, ty)
+          }}
+          onMouseMove={(e) => {
+            if (worldRef.current) worldRef.current.hover = tileAt(e)
+          }}
+          onMouseLeave={() => {
+            if (worldRef.current) worldRef.current.hover = null
+          }}
+        />
+        <div className={styles.scanlines} />
+
+        {mode === "play" && (
+          <>
+            <div className={styles.hudLeft}>
+              <ol className={styles.pipeline}>
+                {proc.pipeline.map((p, i) => (
+                  <li
+                    key={p.label}
+                    className={
+                      i < currentStep || state.finished?.outcome === "success"
+                        ? styles.done
+                        : i === currentStep
+                          ? styles.active
+                          : ""
+                    }
+                  >
+                    {p.label}
+                  </li>
+                ))}
+              </ol>
+              <div className={styles.objective}>
+                <b>ZIEL</b> {stage.objective}
+              </div>
+            </div>
+            <div className={styles.hudRight}>
+              <div>
+                PUNKTE <b>{state.score}</b>
+              </div>
+              <div>
+                RUNDEN{" "}
+                <b
+                  className={
+                    state.round >= proc.roundLimit ? styles.danger : ""
+                  }
+                >
+                  {state.round}/{proc.roundLimit}
+                </b>
+              </div>
+              <div>
+                DOKUMENT <b>{state.hasDoc ? `v${state.docVersion}` : "–"}</b>
+              </div>
+              <button
+                className={styles.mute}
+                onClick={() => {
+                  const next = !soundRef.current!.muted
+                  soundRef.current!.setMuted(next)
+                  setMuted(next)
+                }}
+              >
+                {muted ? "TON AUS" : "TON AN"} [M]
+              </button>
+            </div>
+            {toast && (
+              <div
+                key={toast.id}
+                className={`${styles.toast} ${styles[toast.tone]}`}
+              >
+                {toast.text}
+              </div>
+            )}
+            {state.dialog && dialogNpc && (
+              <DialogBox
+                dialog={state.dialog}
+                npc={dialogNpc}
+                onChoose={onChoose}
+                onAdvance={onAdvance}
+                onBlip={onBlip}
+              />
+            )}
+            {!state.dialog && state.round === 0 && state.log.length === 0 && (
+              <div className={styles.help}>
+                PFEILTASTEN / WASD: LAUFEN · E: SPRECHEN · MAUSKLICK: HINLAUFEN
+              </div>
+            )}
+          </>
+        )}
+
+        {mode === "title" && (
+          <div className={styles.title}>
+            <h1 className={styles.logo}>{proc.title}</h1>
+            <h2>{proc.subtitle}</h2>
+            <div className={styles.intro}>
+              {proc.intro.map((t) => (
+                <p key={t}>{t}</p>
+              ))}
+            </div>
+            <button className={styles.startBtn} onClick={start}>
+              ▶ ENTER = START
+            </button>
+            <p className={styles.keys}>
+              Pfeiltasten / WASD laufen · E oder Klick sprechen · 1–3 antworten
+              · M Ton
+            </p>
+            {best !== null && (
+              <p className={styles.keys}>BESTER SCORE: {best}</p>
+            )}
+          </div>
+        )}
+
+        {mode === "end" && state.finished && (
+          <Debrief proc={proc} state={state} best={best} onRestart={start} />
+        )}
+      </div>
+    </main>
+  )
+}

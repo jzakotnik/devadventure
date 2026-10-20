@@ -1,0 +1,664 @@
+{
+  "id": "modulvorschlag-v1",
+  "title": "BÜRO-QUEST",
+  "subtitle": "Vom Modulvorschlag zur Freigabe",
+  "intro": [
+    "Willkommen im Team! Du bist ab heute Projektmanager:in.",
+    "Ein neuer Modulvorschlag liegt bereit. Bring ihn durch das Haus: BMZ, Partner (PEA) und Teamleitung müssen zustimmen.",
+    "Sprich mit den Kolleg:innen, wähle klug – jede Überarbeitungsrunde kostet Zeit und Nerven."
+  ],
+  "roundLimit": 3,
+  "firstStage": "intake",
+  "pipeline": [
+    {
+      "label": "Vorschlag",
+      "stages": [
+        "intake"
+      ]
+    },
+    {
+      "label": "BMZ",
+      "stages": [
+        "bmz_review",
+        "rework_bmz"
+      ]
+    },
+    {
+      "label": "PEA",
+      "stages": [
+        "pea_review",
+        "rework_pea"
+      ]
+    },
+    {
+      "label": "Teamleitung",
+      "stages": [
+        "tl_approval",
+        "rework_tl"
+      ]
+    }
+  ],
+  "texts": {
+    "wrongNpc": "„Damit bin ich gerade nicht befasst. Dein nächster Halt: {room}.“",
+    "hintPrefix": "Tipp (−2 Punkte): ",
+    "factPrefix": "Wusstest du? ",
+    "successTitle": "FREIGABE ERTEILT!",
+    "successText": "Das Dokument ist final freigegeben. Der Prozess ist durchlaufen.",
+    "failedTitle": "RUNDENLIMIT ERREICHT",
+    "failedText": "Das Limit der Überarbeitungsrunden ist ausgeschöpft. Der Vorschlag geht ohne Freigabe weiter – so läuft es in der Realität nicht gerne."
+  },
+  "map": {
+    "layout": [
+      "############################",
+      "#s_ss__p_#s_ss___p#s_s___ss#",
+      "#________#________#________#",
+      "#_dd___r_#__dd____#___dd___#",
+      "#________#________#________#",
+      "#________#_______r#____p___#",
+      "#_p______#p_______#______p_#",
+      "####+########+########+#####",
+      "#p.........................#",
+      "#.........................p#",
+      "####+########+########+#####",
+      "#________#________#________#",
+      "#_c_____p#__tttt__#ss_ss_ss#",
+      "#____tt__#________#________#",
+      "#_p______#p______p#ss_ss_ss#",
+      "#________#________#________#",
+      "#sss___p_#s_ss__ss#p______p#",
+      "############################"
+    ],
+    "start": [
+      4,
+      5
+    ]
+  },
+  "rooms": [
+    {
+      "id": "pm",
+      "label": "PM-BÜRO",
+      "color": "#5a6fa8",
+      "rect": [
+        1,
+        1,
+        8,
+        6
+      ]
+    },
+    {
+      "id": "bmz",
+      "label": "BMZ",
+      "color": "#4f9a6a",
+      "rect": [
+        10,
+        1,
+        8,
+        6
+      ]
+    },
+    {
+      "id": "pea",
+      "label": "PARTNER (PEA)",
+      "color": "#8a62b0",
+      "rect": [
+        19,
+        1,
+        8,
+        6
+      ]
+    },
+    {
+      "id": "pause",
+      "label": "PAUSENRAUM",
+      "color": "#c08a4a",
+      "rect": [
+        1,
+        11,
+        8,
+        6
+      ]
+    },
+    {
+      "id": "tl",
+      "label": "TEAMLEITUNG",
+      "color": "#b05a5a",
+      "rect": [
+        10,
+        11,
+        8,
+        6
+      ]
+    },
+    {
+      "id": "archiv",
+      "label": "ARCHIV",
+      "color": "#4a9aa0",
+      "rect": [
+        19,
+        11,
+        8,
+        6
+      ]
+    }
+  ],
+  "npcs": {
+    "lena": {
+      "name": "Lena Fischer",
+      "title": "Projektassistenz",
+      "room": "pm",
+      "at": [
+        5,
+        4
+      ],
+      "facing": "left",
+      "look": {
+        "shirt": "#e8a838",
+        "pants": "#3a3f5c",
+        "hair": "#6b3a1e",
+        "skin": "#f0c8a0",
+        "accessory": "bow"
+      }
+    },
+    "meier": {
+      "name": "Frau Meier",
+      "title": "BMZ – Fachprüfung",
+      "room": "bmz",
+      "at": [
+        14,
+        3
+      ],
+      "facing": "down",
+      "look": {
+        "shirt": "#3fa56a",
+        "pants": "#2c3a30",
+        "hair": "#c8c8d0",
+        "skin": "#e8b890",
+        "accessory": "glasses"
+      }
+    },
+    "petrov": {
+      "name": "Herr Petrov",
+      "title": "Partner (PEA)",
+      "room": "pea",
+      "at": [
+        24,
+        3
+      ],
+      "facing": "down",
+      "look": {
+        "shirt": "#7a4ab0",
+        "pants": "#2a2a40",
+        "hair": "#202020",
+        "skin": "#d8a070",
+        "accessory": "tie"
+      }
+    },
+    "schmidt": {
+      "name": "Frau Schmidt",
+      "title": "Teamleitung",
+      "room": "tl",
+      "at": [
+        16,
+        12
+      ],
+      "facing": "left",
+      "look": {
+        "shirt": "#c04848",
+        "pants": "#202030",
+        "hair": "#a03020",
+        "skin": "#f0c8a0",
+        "accessory": "glasses"
+      }
+    },
+    "karl": {
+      "name": "Karl",
+      "title": "Kaffeemaschinen-Experte",
+      "room": "pause",
+      "at": [
+        3,
+        12
+      ],
+      "facing": "down",
+      "role": "hint",
+      "look": {
+        "shirt": "#e0d8c0",
+        "pants": "#506080",
+        "hair": "#808080",
+        "skin": "#e8b890",
+        "accessory": "cap"
+      }
+    },
+    "bauer": {
+      "name": "Herr Bauer",
+      "title": "Archivar",
+      "room": "archiv",
+      "at": [
+        21,
+        13
+      ],
+      "facing": "down",
+      "role": "fact",
+      "look": {
+        "shirt": "#8a7a5a",
+        "pants": "#403830",
+        "hair": "#d0d0d0",
+        "skin": "#e8b890",
+        "accessory": "glasses"
+      }
+    }
+  },
+  "stages": [
+    {
+      "id": "intake",
+      "title": "Modulvorschlag abholen",
+      "room": "pm",
+      "npc": "lena",
+      "objective": "Hole den Modulvorschlag bei Lena im PM-Büro ab.",
+      "hint": "Lena im eigenen Büro hat den Vorschlag – sprich sie einfach an.",
+      "fact": "Jeder Vorgang beginnt mit einem Modulvorschlag. Er ist die Grundlage für alle Prüfungen danach.",
+      "dialog": "lena_intro",
+      "on": {
+        "DONE": {
+          "next": "bmz_review",
+          "giveDoc": true,
+          "docVersion": 1,
+          "message": "Modulvorschlag v1 erhalten! Weiter zum BMZ.",
+          "tone": "good"
+        }
+      }
+    },
+    {
+      "id": "bmz_review",
+      "title": "Fachprüfung BMZ",
+      "room": "bmz",
+      "npc": "meier",
+      "objective": "Bringe das Dokument zu Frau Meier ins BMZ.",
+      "hint": "Frau Meier mag Dokumente mit Kurzbeschreibung, Nutzen und Finanzrahmen – komplett und begründet.",
+      "fact": "Das BMZ prüft fachlich und finanziell. Unklare Unterlagen kosten alle Beteiligten eine Runde.",
+      "dialog": "bmz_intro",
+      "repeatDialog": "bmz_recheck",
+      "on": {
+        "OK": {
+          "next": "pea_review",
+          "score": 10,
+          "message": "BMZ ist einverstanden! Weiter zum Partner (PEA).",
+          "tone": "good"
+        },
+        "AENDERUNGEN": {
+          "next": "rework_bmz",
+          "costsRound": true,
+          "message": "BMZ fordert Änderungen. Zurück ins PM-Büro.",
+          "tone": "bad"
+        },
+        "UNKLAR": {
+          "costsRound": true,
+          "message": "Frau Meier versteht den Vorschlag nicht. Nochmal versuchen.",
+          "tone": "bad"
+        }
+      }
+    },
+    {
+      "id": "rework_bmz",
+      "title": "Überarbeitung (BMZ-Feedback)",
+      "room": "pm",
+      "npc": "lena",
+      "objective": "Überarbeite das Dokument mit Lena im PM-Büro.",
+      "hint": "Änderungen sollten nachvollziehbar sein: vorher, nachher, Begründung.",
+      "fact": "Markierte Änderungen sparen den Prüfer:innen Zeit – sie müssen nicht das ganze Dokument neu lesen.",
+      "dialog": "lena_rework_bmz",
+      "on": {
+        "REVISED": {
+          "next": "bmz_review",
+          "docVersion": 1,
+          "score": 5,
+          "message": "Dokument überarbeitet (neue Version). Zurück zum BMZ.",
+          "tone": "info"
+        },
+        "SLOPPY": {
+          "next": "bmz_review",
+          "docVersion": 1,
+          "costsRound": true,
+          "message": "Überarbeitung war dünn – das gibt Ärger.",
+          "tone": "bad"
+        }
+      }
+    },
+    {
+      "id": "pea_review",
+      "title": "Partner-Feedback (PEA)",
+      "room": "pea",
+      "npc": "petrov",
+      "objective": "Hole das Feedback von Herrn Petrov (Partner, PEA) ein.",
+      "hint": "Der Partner erwartet Transparenz: was ändert sich für ihn, bis wann, wer ist verantwortlich?",
+      "fact": "PEA steht für den Partner. Ohne dessen Feedback gibt es später keine Freigabe der Teamleitung.",
+      "dialog": "pea_intro",
+      "repeatDialog": "pea_recheck",
+      "on": {
+        "OK": {
+          "next": "tl_approval",
+          "score": 10,
+          "message": "Partner ist zufrieden! Weiter zur Teamleitung.",
+          "tone": "good"
+        },
+        "AENDERUNGEN": {
+          "next": "rework_pea",
+          "costsRound": true,
+          "message": "Partner wünscht Änderungen. Zurück ins PM-Büro.",
+          "tone": "bad"
+        },
+        "UNKLAR": {
+          "costsRound": true,
+          "message": "Herr Petrov hat Rückfragen. Nochmal versuchen.",
+          "tone": "bad"
+        }
+      }
+    },
+    {
+      "id": "rework_pea",
+      "title": "Überarbeitung (Partner-Feedback)",
+      "room": "pm",
+      "npc": "lena",
+      "objective": "Arbeite das Partner-Feedback mit Lena ein.",
+      "hint": "Partner-Feedback fließt ins Dokument – und der Partner sollte es wiedererkennen.",
+      "fact": "Wer Feedback sichtbar einarbeitet, bekommt bei der nächsten Runde meist schneller ein OK.",
+      "dialog": "lena_rework_pea",
+      "on": {
+        "REVISED": {
+          "next": "pea_review",
+          "docVersion": 1,
+          "score": 5,
+          "message": "Feedback eingearbeitet. Zurück zum Partner.",
+          "tone": "info"
+        },
+        "SLOPPY": {
+          "next": "pea_review",
+          "docVersion": 1,
+          "costsRound": true,
+          "message": "Das reicht dem Partner nicht.",
+          "tone": "bad"
+        }
+      }
+    },
+    {
+      "id": "tl_approval",
+      "title": "Freigabe Teamleitung",
+      "room": "tl",
+      "npc": "schmidt",
+      "objective": "Hole die finale Freigabe bei Frau Schmidt (Teamleitung).",
+      "hint": "Die Teamleitung entscheidet auf Basis der Ergebnisse von BMZ und Partner – lege beides offen.",
+      "fact": "Die Teamleitung gibt nur frei, wenn BMZ und Partner zugestimmt haben und das Dokument konsistent ist.",
+      "dialog": "tl_intro",
+      "repeatDialog": "tl_recheck",
+      "on": {
+        "GENEHMIGT": {
+          "score": 20,
+          "ending": "success",
+          "message": "GENEHMIGT!",
+          "tone": "good"
+        },
+        "NACHARBEITEN": {
+          "next": "rework_tl",
+          "costsRound": true,
+          "message": "Teamleitung verlangt Nacharbeiten.",
+          "tone": "bad"
+        }
+      }
+    },
+    {
+      "id": "rework_tl",
+      "title": "Nacharbeiten (Teamleitung)",
+      "room": "pm",
+      "npc": "lena",
+      "objective": "Setze die Nacharbeiten der Teamleitung mit Lena um.",
+      "hint": "Nacharbeiten gezielt umsetzen – nicht alles neu schreiben.",
+      "fact": "Je gezielter die Nacharbeit, desto geringer das Risiko, vorherige Zustimmungen zu verlieren.",
+      "dialog": "lena_rework_tl",
+      "on": {
+        "REVISED": {
+          "next": "tl_approval",
+          "docVersion": 1,
+          "score": 5,
+          "message": "Nachgebessert. Zurück zur Teamleitung.",
+          "tone": "info"
+        },
+        "SLOPPY": {
+          "next": "tl_approval",
+          "docVersion": 1,
+          "costsRound": true,
+          "message": "So wird das nichts.",
+          "tone": "bad"
+        }
+      }
+    }
+  ],
+  "dialogs": {
+    "lena_intro": {
+      "text": "Hi! Schön, dass du da bist. Der neue Modulvorschlag ist gerade reingekommen. Möchtest du ihn mitnehmen?",
+      "choices": [
+        {
+          "text": "Gerne – gibt es etwas, das ich wissen sollte?",
+          "goto": "lena_info",
+          "score": 2
+        },
+        {
+          "text": "Her damit, ich lege sofort los!",
+          "reply": "Lena reicht dir die Mappe. „Viel Erfolg!“",
+          "result": "DONE",
+          "score": 3,
+          "learn": "Der Prozess startet immer beim Modulvorschlag. Danach geht es der Reihe nach durch BMZ, Partner (PEA) und Teamleitung."
+        }
+      ]
+    },
+    "lena_info": {
+      "text": "Der Ablauf: erst BMZ (fachlich), dann der Partner (PEA), am Ende die Teamleitung. Bei jeder Stelle kann es Änderungen geben – nach drei Runden ist Schluss.",
+      "choices": [
+        {
+          "text": "Verstanden, danke!",
+          "reply": "Lena lächelt. „Dann los!“",
+          "result": "DONE",
+          "score": 5,
+          "learn": "Es gibt ein Rundenlimit für Überarbeitungen. Gute Vorbereitung spart Runden."
+        }
+      ]
+    },
+    "bmz_intro": {
+      "text": "Guten Tag! Sie bringen den neuen Modulvorschlag? Dann zeigen Sie mal.",
+      "choices": [
+        {
+          "text": "Ich lege Ihnen das Dokument einfach hin.",
+          "reply": "Frau Meier runzelt die Stirn. „Und worum geht es hier genau?“",
+          "result": "UNKLAR",
+          "score": -5,
+          "learn": "Ohne Kontext kann das BMZ nicht sinnvoll prüfen. Gib immer eine Kurzbeschreibung mit."
+        },
+        {
+          "text": "Anbei der Vorschlag mit Kurzbeschreibung, Nutzen und Finanzrahmen.",
+          "reply": "„Sehr übersichtlich. Das sieht gut aus!“",
+          "result": "OK",
+          "score": 10,
+          "learn": "Kurzbeschreibung, Nutzen und Finanzrahmen sind der Kern jeder Fachprüfung."
+        },
+        {
+          "text": "Prüfen Sie erst mal, den Finanzrahmen ergänze ich später.",
+          "reply": "„So geht das nicht – ich brauche den Finanzrahmen. Bitte überarbeiten.“",
+          "result": "AENDERUNGEN",
+          "score": -3,
+          "learn": "Unvollständige Unterlagen werden zurückgegeben und kosten eine Runde."
+        }
+      ]
+    },
+    "bmz_recheck": {
+      "text": "Da sind Sie ja wieder. Haben Sie meine Anmerkungen berücksichtigt?",
+      "choices": [
+        {
+          "text": "Ja – alle Änderungen sind markiert, mit Begründung.",
+          "reply": "„Perfekt, das lässt sich schnell prüfen. Freigabe vom BMZ!“",
+          "result": "OK",
+          "score": 10,
+          "learn": "Markierte Änderungen mit Begründung beschleunigen die Prüfung."
+        },
+        {
+          "text": "Ich glaube schon, schauen Sie am besten selbst.",
+          "reply": "„Ich suche nicht nach Ihren Änderungen. Bitte nachbessern.“",
+          "result": "AENDERUNGEN",
+          "score": -3,
+          "learn": "Die Prüfer:innen sollten nicht suchen müssen, was sich geändert hat."
+        },
+        {
+          "text": "Das war eigentlich schon alles richtig.",
+          "reply": "Frau Meier schweigt vielsagend. „Ich verstehe es nicht.“",
+          "result": "UNKLAR",
+          "score": -5,
+          "learn": "Feedback nicht einfach abwehren – erklären oder einarbeiten."
+        }
+      ]
+    },
+    "lena_rework_bmz": {
+      "text": "Das BMZ will Änderungen? Dann machen wir das gleich. Wie gehen wir vor?",
+      "choices": [
+        {
+          "text": "Finanzrahmen präzisieren und alle Änderungen markieren.",
+          "reply": "„Gute Idee – so sieht man sofort, was sich getan hat.“",
+          "result": "REVISED",
+          "score": 5,
+          "learn": "Vorher / Nachher / Begründung: das macht Änderungen nachvollziehbar."
+        },
+        {
+          "text": "Wir kürzen einfach den Text, das reicht schon.",
+          "reply": "„Hm… ob das reicht?“",
+          "result": "SLOPPY",
+          "score": -3,
+          "learn": "Kürzen beantwortet nicht die Frage des BMZ – nur gezielte Änderungen helfen."
+        }
+      ]
+    },
+    "pea_intro": {
+      "text": "Ah, der Projektmanager! Das BMZ hat zugestimmt, habe ich gehört. Was bedeutet das für uns als Partner?",
+      "choices": [
+        {
+          "text": "Ich fasse zusammen: Änderungen, Termine und Verantwortliche.",
+          "reply": "„Genau das wollte ich wissen. Danke!“",
+          "result": "OK",
+          "score": 10,
+          "learn": "Partner brauchen klare Informationen: Was ändert sich, bis wann, wer ist zuständig?"
+        },
+        {
+          "text": "Lesen Sie einfach das Dokument.",
+          "reply": "„Das ist mir zu vage. Ich brauche eine Einordnung.“",
+          "result": "UNKLAR",
+          "score": -5,
+          "learn": "Ein Dokument ersetzt nicht das Gespräch – ordne es für den Partner ein."
+        },
+        {
+          "text": "Wir sind schon durch, Sie müssen nur noch zustimmen.",
+          "reply": "Herr Petrov verschränkt die Arme. „Ich hätte gern Änderungen berücksichtigt.“",
+          "result": "AENDERUNGEN",
+          "score": -3,
+          "learn": "Der Partner ist kein Stempel – sein Feedback ist Teil des Prozesses."
+        }
+      ]
+    },
+    "pea_recheck": {
+      "text": "Schön, dass Sie wieder da sind. Wie sieht es mit meinem Feedback aus?",
+      "choices": [
+        {
+          "text": "Eingearbeitet und kenntlich gemacht – hier ist die Übersicht.",
+          "reply": "„Sehr gut, das passt für uns.“",
+          "result": "OK",
+          "score": 10,
+          "learn": "Sichtbar eingearbeitetes Feedback schafft Vertrauen."
+        },
+        {
+          "text": "Wir prüfen das intern noch.",
+          "reply": "„Dann komme ich später wieder.“",
+          "result": "UNKLAR",
+          "score": -5,
+          "learn": "Ausweichen kostet Zeit – klare Antworten sind besser."
+        }
+      ]
+    },
+    "lena_rework_pea": {
+      "text": "Der Partner hat Wünsche. Wie arbeiten wir sie ein?",
+      "choices": [
+        {
+          "text": "Gemeinsam durchgehen und im Dokument sichtbar einarbeiten.",
+          "reply": "„So fühlt sich der Partner ernst genommen.“",
+          "result": "REVISED",
+          "score": 5,
+          "learn": "Partnerfeedback muss sichtbar werden."
+        },
+        {
+          "text": "Wir ändern nur das, was uns passt.",
+          "reply": "„Das könnte Ärger geben…“",
+          "result": "SLOPPY",
+          "score": -3,
+          "learn": "Selektives Einarbeiten ohne Begründung führt zu weiteren Runden."
+        }
+      ]
+    },
+    "tl_intro": {
+      "text": "Guten Tag. Ich habe BMZ und Partner im Blick. Sind alle Zustimmungen da und das Dokument konsistent?",
+      "choices": [
+        {
+          "text": "Ja: BMZ- und Partner-OK liegen vor, hier ist die finale Version.",
+          "reply": "Frau Schmidt prüft kurz und nickt. „Freigabe erteilt.“",
+          "result": "GENEHMIGT",
+          "score": 15,
+          "learn": "Die Teamleitung gibt frei, wenn alle Stellen zugestimmt haben und die Version konsistent ist."
+        },
+        {
+          "text": "Fast, die letzten Anmerkungen klären wir noch.",
+          "reply": "„Dann ist das noch nicht reif. Bitte nacharbeiten.“",
+          "result": "NACHARBEITEN",
+          "score": -5,
+          "learn": "Unfertiges gehört nicht in die Freigabe."
+        },
+        {
+          "text": "Das passt schon – bitte einfach abnicken.",
+          "reply": "„So läuft das nicht. Nacharbeiten, bitte.“",
+          "result": "NACHARBEITEN",
+          "score": -5,
+          "learn": "Freigaben sind keine Formalie, sondern eine echte Prüfung."
+        }
+      ]
+    },
+    "tl_recheck": {
+      "text": "Wieder bei mir? Dann zeigen Sie mal die Nacharbeiten.",
+      "choices": [
+        {
+          "text": "Alles umgesetzt, hier die Gegenüberstellung der Änderungen.",
+          "reply": "„Das ist sauber. Genehmigt!“",
+          "result": "GENEHMIGT",
+          "score": 15,
+          "learn": "Eine Gegenüberstellung macht Nacharbeiten prüfbar."
+        },
+        {
+          "text": "Wir sind fast fertig.",
+          "reply": "„Fast reicht nicht. Bitte nacharbeiten.“",
+          "result": "NACHARBEITEN",
+          "score": -5,
+          "learn": "Zum Termin muss alles vollständig sein."
+        }
+      ]
+    },
+    "lena_rework_tl": {
+      "text": "Die Teamleitung möchte Nacharbeiten. Was ist dein Plan?",
+      "choices": [
+        {
+          "text": "Gezielt die genannten Punkte beheben und dokumentieren.",
+          "reply": "„Das spart uns eine Runde!“",
+          "result": "REVISED",
+          "score": 5,
+          "learn": "Gezielte Nacharbeit gefährdet vorherige Zustimmungen nicht."
+        },
+        {
+          "text": "Wir schreiben alles noch einmal neu.",
+          "reply": "„Und was ist mit den bisherigen OKs?“",
+          "result": "SLOPPY",
+          "score": -3,
+          "learn": "Alles neu zu schreiben kann bisherige Zustimmungen entwerten."
+        }
+      ]
+    }
+  }
+}
