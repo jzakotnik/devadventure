@@ -1,6 +1,6 @@
 /**
  * Types for a game process definition (see ../_content/*.json).
- * The whole /game folder is self-contained (relative imports only) so it can
+ * The game code uses relative imports only and has no backend, so it can
  * be moved to its own repo without changes.
  */
 
