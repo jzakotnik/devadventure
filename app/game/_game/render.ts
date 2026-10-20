@@ -425,9 +425,49 @@ export class Renderer {
           ),
       })
     }
+    if (opts.showPlayer) this.drawPlayerRing(ctx)
     sprites.sort((a, b) => a.y - b.y).forEach((s) => s.draw())
+    if (opts.showPlayer) this.drawPlayerArrow(ctx)
 
     ctx.drawImage(this.vignette, 0, 0)
+  }
+
+  /** Pulsing gold ring under the player's feet. */
+  private drawPlayerRing(ctx: CanvasRenderingContext2D) {
+    const [dx, dy] = this.world.drawPos
+    const cx = dx * TILE + 8
+    const cy = dy * TILE + 14.5
+    const pulse = 0.5 + 0.5 * Math.sin(this.world.time * 5)
+    ctx.save()
+    ctx.fillStyle = `rgba(255,216,102,${0.22 + 0.12 * pulse})`
+    ctx.beginPath()
+    ctx.ellipse(cx, cy, 8.5 + pulse, 3.6 + pulse * 0.4, 0, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.strokeStyle = `rgba(255,216,102,${0.75 + 0.25 * pulse})`
+    ctx.lineWidth = 1
+    ctx.stroke()
+    ctx.restore()
+  }
+
+  /** Bobbing arrow above the player's head. */
+  private drawPlayerArrow(ctx: CanvasRenderingContext2D) {
+    const [dx, dy] = this.world.drawPos
+    const cx = Math.round(dx * TILE + 8)
+    const top = Math.round(dy * TILE - 8 + Math.sin(this.world.time * 6) * 1.5)
+    ctx.fillStyle = "#14162a"
+    ctx.beginPath()
+    ctx.moveTo(cx - 5, top - 1)
+    ctx.lineTo(cx + 5, top - 1)
+    ctx.lineTo(cx, top + 6)
+    ctx.closePath()
+    ctx.fill()
+    ctx.fillStyle = "#ffd866"
+    ctx.beginPath()
+    ctx.moveTo(cx - 3.5, top + 0.5)
+    ctx.lineTo(cx + 3.5, top + 0.5)
+    ctx.lineTo(cx, top + 4.5)
+    ctx.closePath()
+    ctx.fill()
   }
 
   draw(
@@ -497,6 +537,14 @@ export class Renderer {
       const tw = sg.text.length * 3.6 + 5
       this.box(ctx, sg.cx - tw / 2, sg.y - 0.5, tw, 8, sg.color)
       this.text(ctx, sg.text, sg.cx, sg.y + 4, 5, "#fff")
+    }
+
+    {
+      const [px, py] = w.drawPos
+      const cx = px * TILE + 8
+      const ty = Math.max(5, py * TILE - 16 + Math.sin(w.time * 6) * 1.5)
+      this.box(ctx, cx - 7, ty - 4.5, 14, 8, "#ffd866")
+      this.text(ctx, "DU", cx, ty, 5.5, "#ffd866")
     }
 
     if (opts.nearNpc && !opts.talkingNpc) {
