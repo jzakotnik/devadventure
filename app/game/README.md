@@ -1,4 +1,4 @@
-# Büro-Quest (isolated game module)
+# FZ Prozess Quest (isolated game module)
 
 A 90s-style top-down browser game that teaches the Modulvorschlag process
 (PM → BMZ → PEA → Teamleitung). Served at `/game`.
