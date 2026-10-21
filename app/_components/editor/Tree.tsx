@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react"
 import styles from "../../editor.module.css"
+import { ENUM_LABELS, metaFor } from "./help"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Path = Array<string | number>
@@ -62,32 +63,6 @@ const TEXT_KEYS = new Set([
   "successText",
   "failedText",
 ])
-
-/** Short German explanations of the less obvious fields. */
-const GLOSS: Record<string, string> = {
-  result: "Ergebnis-Schlüssel; muss in „on“ der Phase vorkommen",
-  goto: "weiter mit diesem Dialogknoten",
-  next: "nächster Dialogknoten bzw. nächste Phase",
-  costsRound: "kostet eine Überarbeitungsrunde",
-  docVersion: "Dokumentversion +n",
-  giveDoc: "Spieler erhält das Dokument",
-  when: "Bedingung; die erste passende Variante gilt",
-  round: "Runden ± (Ereignisse)",
-  flag: "setzt eine Markierung (für Erfolge/Bedingungen)",
-  role: "hint = verkauft Tipps, fact = liefert Fakten",
-  weight: "Gewichtung bei der Zufallsauswahl",
-  roundLimit: "mehr Runden beenden das Spiel erfolglos",
-  repeatDialog: "Dialog beim erneuten Besuch",
-  on: "Ergebnis → Wirkung",
-  minSteps: "Schritte zwischen Ereignissen (min)",
-  maxSteps: "Schritte zwischen Ereignissen (max)",
-  maxPerRun: "max. Ereignisse pro Spiel",
-  stat: "Statistik (talks, steps, hints, facts, …)",
-  document: "Name des Dokuments im HUD; leer = ausblenden",
-  start: "Startposition [x, y]",
-  at: "Position [x, y]",
-  rect: "[x, y, Breite, Höhe] in Kacheln",
-}
 
 function isLongText(key: string, v: unknown): boolean {
   return (
@@ -251,21 +226,24 @@ const isNumArray = (v: any) =>
 
 function Field({
   name,
-  hint,
+  label,
+  help,
   children,
   wide,
 }: {
   name: string
-  hint?: string
+  label?: string
+  help?: string
   children: ReactNode
   wide?: boolean
 }) {
   return (
     <label className={wide ? styles.fieldWide : styles.field}>
       <span className={styles.fieldName}>
-        {name}
-        {hint && <small> {hint}</small>}
+        {label ?? name}
+        {label && label !== name && <code className={styles.key}>{name}</code>}
       </span>
+      {help && <span className={styles.help}>{help}</span>}
       {children}
     </label>
   )
@@ -281,13 +259,12 @@ function Primitive({
   ctx: TreeCtx
 }) {
   const key = String(path[path.length - 1])
-  const hint =
-    typeof path[path.length - 1] === "string" ? GLOSS[key] : undefined
+  const meta = metaFor(path)
   const set = (v: any) => ctx.set(path, v)
 
   if (typeof value === "boolean")
     return (
-      <Field name={key} hint={hint}>
+      <Field name={key} label={meta.label} help={meta.help}>
         <input
           type="checkbox"
           checked={value}
@@ -297,7 +274,7 @@ function Primitive({
     )
   if (typeof value === "number")
     return (
-      <Field name={key} hint={hint}>
+      <Field name={key} label={meta.label} help={meta.help}>
         <input
           className={styles.input}
           type="number"
@@ -310,7 +287,7 @@ function Primitive({
   const opts = optionsFor(path, ctx.root)
   if (opts)
     return (
-      <Field name={key} hint={hint}>
+      <Field name={key} label={meta.label} help={meta.help}>
         <select
           className={styles.input}
           value={str}
@@ -319,7 +296,7 @@ function Primitive({
           {!opts.includes(str) && <option value={str}>{str || "—"}</option>}
           {opts.map((o) => (
             <option key={o} value={o}>
-              {o}
+              {ENUM_LABELS[key]?.[o] ?? o}
             </option>
           ))}
         </select>
@@ -327,7 +304,7 @@ function Primitive({
     )
   if (COLOR_KEYS.has(key) && /^#[0-9a-f]{6}$/i.test(str))
     return (
-      <Field name={key} hint={hint}>
+      <Field name={key} label={meta.label} help={meta.help}>
         <span className={styles.colorRow}>
           <input
             type="color"
@@ -341,7 +318,7 @@ function Primitive({
   const isMapRow = path[0] === "map" && path[1] === "layout"
   if (isLongText(key, str))
     return (
-      <Field name={key} hint={hint} wide>
+      <Field name={key} label={meta.label} help={meta.help} wide>
         <textarea
           className={styles.input}
           rows={rowsFor(str)}
@@ -351,7 +328,11 @@ function Primitive({
       </Field>
     )
   return (
-    <Field name={isMapRow ? `Zeile ${key}` : key} hint={hint}>
+    <Field
+      name={isMapRow ? `Zeile ${key}` : key}
+      label={meta.label}
+      help={meta.help}
+    >
       <input
         className={isMapRow ? `${styles.input} ${styles.mono}` : styles.input}
         value={str}
@@ -377,16 +358,17 @@ function AddOptional({
   return (
     <select
       className={styles.addSelect}
+      title="Ein weiteres, optionales Feld hinzufügen"
       value=""
       onChange={(e) => {
         if (e.target.value)
           ctx.set(path, { ...value, [e.target.value]: options[e.target.value] })
       }}
     >
-      <option value="">+ Feld …</option>
+      <option value="">+ Feld hinzufügen …</option>
       {free.map((k) => (
         <option key={k} value={k}>
-          {k}
+          {metaFor([...path, k]).label ?? k} ({k})
         </option>
       ))}
     </select>
@@ -415,7 +397,11 @@ export function Tree({
 
   if (isNumArray(value))
     return (
-      <Field name={keyName} hint={GLOSS[keyName]}>
+      <Field
+        name={keyName}
+        label={metaFor(path).label}
+        help={metaFor(path).help}
+      >
         <span className={styles.numRow}>
           {value.map((n: number, i: number) => (
             <input
@@ -435,18 +421,15 @@ export function Tree({
     const flat = value.every((x) => typeof x === "string")
     return (
       <Group
-        title={keyName}
-        hint={
-          onList
-            ? "Varianten – die erste passende Bedingung gilt"
-            : GLOSS[keyName]
-        }
+        title={metaFor(path).label ?? keyName}
+        help={metaFor(path).help}
         open={open}
         actions={
           <>
             {onList && value.length === 1 && !value[0]?.when && (
               <button
                 className={styles.mini}
+                title="Nur noch eine Wirkung ohne Bedingung"
                 onClick={() => ctx.set(path, value[0])}
               >
                 → einzelne Wirkung
@@ -455,6 +438,7 @@ export function Tree({
             {removable && (
               <button
                 className={styles.miniDanger}
+                title="Entfernen"
                 onClick={() => ctx.remove(path)}
               >
                 ✕
@@ -468,10 +452,12 @@ export function Tree({
             {typeof item === "object" && item !== null ? (
               <Group
                 title={labelOf(item, i)}
+                help={metaFor([...path, i]).help}
                 open={false}
                 actions={
                   <button
                     className={styles.miniDanger}
+                    title="Diesen Eintrag entfernen"
                     onClick={() => ctx.remove([...path, i])}
                   >
                     ✕
@@ -485,6 +471,7 @@ export function Tree({
                 <Tree value={item} path={[...path, i]} ctx={ctx} />
                 <button
                   className={styles.miniDanger}
+                  title="Diesen Eintrag entfernen"
                   onClick={() => ctx.remove([...path, i])}
                 >
                   ✕
@@ -495,6 +482,7 @@ export function Tree({
         ))}
         <button
           className={styles.mini}
+          title="Neuen Eintrag am Ende anlegen (kopiert den letzten Eintrag als Vorlage)"
           onClick={() =>
             ctx.set(path, [...value, newItem(path, value, ctx.root)])
           }
@@ -525,13 +513,14 @@ export function Tree({
         return nested ? (
           <Group
             key={k}
-            title={isRecord ? labelOf(v, k) : k}
-            hint={GLOSS[k]}
+            title={isRecord ? labelOf(v, k) : (metaFor(p).label ?? k)}
+            help={metaFor(p).help}
             open={!isRecord && !Array.isArray(v)}
             actions={
               (isRecord || optionalFor(path, ctx.root)[k] !== undefined) && (
                 <button
                   className={styles.miniDanger}
+                  title="Entfernen"
                   onClick={() => ctx.remove(p)}
                 >
                   ✕
@@ -545,7 +534,7 @@ export function Tree({
           <div
             key={k}
             className={
-              isLongText(k, v)
+              isLongText(k, v) || (metaFor(p).help?.length ?? 0) > 90
                 ? `${styles.fieldRow} ${styles.fieldRowWide}`
                 : styles.fieldRow
             }
@@ -554,7 +543,7 @@ export function Tree({
             {optionalFor(path, ctx.root)[k] !== undefined && (
               <button
                 className={styles.miniDanger}
-                title="Feld entfernen"
+                title="Optionales Feld entfernen"
                 onClick={() => ctx.remove(p)}
               >
                 ✕
@@ -568,8 +557,11 @@ export function Tree({
         {isRecord && (
           <button
             className={styles.mini}
+            title="Neuen Eintrag mit eigenem Namen anlegen"
             onClick={() => {
-              const id = window.prompt("Neue ID (Buchstaben, Ziffern, _):")
+              const id = window.prompt(
+                "Interner Name des neuen Eintrags (Buchstaben, Ziffern, _; keine Leerzeichen):"
+              )
               if (!id || id in value) return
               ctx.set(path, { ...value, [id]: clone(template) })
             }}
@@ -580,6 +572,7 @@ export function Tree({
         {onEntry && (
           <button
             className={styles.mini}
+            title="Mehrere Varianten mit Bedingungen anlegen; die erste passende gilt"
             onClick={() => ctx.set(path, [value])}
           >
             → bedingte Liste
@@ -594,13 +587,13 @@ export function Tree({
 
 function Group({
   title,
-  hint,
+  help,
   open,
   actions,
   children,
 }: {
   title: string
-  hint?: string
+  help?: string
   open: boolean
   actions?: ReactNode
   children: ReactNode
@@ -608,10 +601,7 @@ function Group({
   return (
     <details className={styles.group} open={open}>
       <summary>
-        <span>
-          {title}
-          {hint && <small> {hint}</small>}
-        </span>
+        <span>{title}</span>
         <span
           className={styles.summaryActions}
           onClick={(e) => e.stopPropagation()}
@@ -619,7 +609,10 @@ function Group({
           {actions}
         </span>
       </summary>
-      <div className={styles.groupBody}>{children}</div>
+      <div className={styles.groupBody}>
+        {help && <p className={styles.groupHelp}>{help}</p>}
+        {children}
+      </div>
     </details>
   )
 }

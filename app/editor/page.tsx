@@ -2,7 +2,10 @@ import type { Metadata } from "next"
 import { Editor } from "../_components/editor/Editor"
 import { editorEnabled } from "../_game/store"
 
-export const metadata: Metadata = { title: "Spiel-Editor" }
+export const metadata: Metadata = {
+  title: "Spiel-Editor",
+  robots: { index: false, follow: false },
+}
 export const dynamic = "force-dynamic"
 
 export default async function EditorPage({

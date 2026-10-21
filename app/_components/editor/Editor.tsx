@@ -4,6 +4,7 @@ import { Component, useEffect, useMemo, useState, type ReactNode } from "react"
 import { DEFAULT_SCORING, DEFAULT_UI, type Process } from "../../_game/schema"
 import { validateProcess } from "../../_game/validate"
 import styles from "../../editor.module.css"
+import { TAB_HELP, metaFor } from "./help"
 import { Overview } from "./Overview"
 import { Tree, removeIn, setIn, type Path } from "./Tree"
 
@@ -166,6 +167,10 @@ export function Editor({
       <section className={styles.bar}>
         <label>
           Vorlage laden
+          <span className={styles.barHelp}>
+            Wähle ein bestehendes Spiel als Ausgangspunkt. Änderungen wirken
+            erst nach dem Speichern.
+          </span>
           <select
             className={styles.input}
             value={from}
@@ -181,6 +186,11 @@ export function Editor({
         </label>
         <label>
           Speichern als (game=…)
+          <span className={styles.barHelp}>
+            Name, unter dem das Spiel gespeichert wird; Aufruf dann mit ?game=
+            Name. Nur Buchstaben, Ziffern, - und _. Eingebaute Spiele lassen
+            sich nicht überschreiben.
+          </span>
           <input
             className={styles.input}
             value={saveId}
@@ -227,7 +237,10 @@ export function Editor({
       )}
       {errors.length > 0 && (
         <details className={styles.errBox} open>
-          <summary>{errors.length} Problem(e) im Spiel</summary>
+          <summary>
+            {errors.length} Problem(e) im Spiel – Speichern ist erst möglich,
+            wenn sie behoben sind
+          </summary>
           <ul>
             {errors.map((e) => (
               <li key={e}>{e}</li>
@@ -248,6 +261,13 @@ export function Editor({
         ))}
       </nav>
 
+      {TAB_HELP[tab] && (
+        <aside className={styles.tabHelp}>
+          <b>{TAB_HELP[tab].title}</b>
+          {TAB_HELP[tab].text}
+        </aside>
+      )}
+
       {proc && tab !== "json" && tab !== "overview" && (
         <main className={styles.sections}>
           {current.keys.map((k) => {
@@ -258,7 +278,8 @@ export function Editor({
                   className={styles.mini}
                   onClick={() => ctx.set([k], OPTIONAL_SECTIONS[k])}
                 >
-                  + Abschnitt „{k}“ anpassen (sonst Standardwerte)
+                  + „{metaFor([k]).label ?? k}“ anpassen (sonst gelten
+                  Standardwerte)
                 </button>
               ) : null
             const v = proc[k]
@@ -267,7 +288,7 @@ export function Editor({
               <section key={k} className={styles.section}>
                 {isObj && !Array.isArray(v) && (
                   <h2>
-                    {k}
+                    {metaFor([k]).label ?? k}
                     {OPTIONAL_SECTIONS[k] && (
                       <button
                         className={styles.miniDanger}
@@ -278,6 +299,9 @@ export function Editor({
                       </button>
                     )}
                   </h2>
+                )}
+                {isObj && !Array.isArray(v) && metaFor([k]).help && (
+                  <p className={styles.sectionHelp}>{metaFor([k]).help}</p>
                 )}
                 <Tree value={v} path={[k]} ctx={ctx} open />
               </section>
