@@ -29,10 +29,24 @@ npm run build && npm start   # production, static page
 
 ## Several games
 
-Every JSON file in `app/_content/` is a playable game: `/` loads `modulvorschlag`,
-`/?game=urlaubsantrag` loads `urlaubsantrag.json`. The file is validated on load; an invalid
+`/` is a launcher menu: play one of the available games (list is read from disk on every
+request) or design a new one in the editor. `/?game=<id>` plays a game directly; every JSON
+file in `app/_content/` (or saved by the editor in `data/games/`) is one, e.g.
+`/?game=urlaubsantrag`. The file is validated on load; an invalid
 or missing file shows an error page listing the problems. To make a new process, copy a file,
 then change actors (`npcs`), rooms, `stages`, `dialogs`, `texts` and `pipeline`.
+
+### Editor
+
+`/editor` is an interactive editor: pick any existing game as a template (built-in or
+previously saved), edit it in tabs (general, world, actors, flow, dialogs, events and
+achievements, game values, raw JSON), see validation problems live, and save under an id.
+`/?game=<id>` then plays it. Reference fields (room, npc, stage, dialog) are dropdowns.
+
+Saved games are written to `data/games/<id>.json` (git-ignored; move a file to
+`app/_content/` to ship it with the app). Built-in games are read-only, so use a new id.
+Saving is allowed in dev; in production set `GAME_EDITOR=1` (the endpoint has no
+authentication, so only enable it where that is acceptable). Needs a writable filesystem.
 
 Optional blocks (all fields have defaults, see `schema.ts`):
 

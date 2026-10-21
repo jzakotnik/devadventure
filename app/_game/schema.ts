@@ -249,6 +249,7 @@ export interface UiTexts {
   allAchievements: string
   back: string
   loadError: string
+  menu: string
 }
 
 export const DEFAULT_UI: UiTexts = {
@@ -274,4 +275,5 @@ export const DEFAULT_UI: UiTexts = {
   allAchievements: "ALLE ERFOLGE",
   back: "ZURÜCK [ESC]",
   loadError: "Das Spiel konnte nicht geladen werden",
+  menu: "← MENÜ",
 }
