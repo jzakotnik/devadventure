@@ -1,0 +1,957 @@
+{
+  "map": {
+    "layout": [
+      "############################",
+      "#s_ss__p_#s_ss___p#s_s___ss#",
+      "#________#________#________#",
+      "#_dd___r_#__dd____#___dd___#",
+      "#________#________#________#",
+      "#________#_______r#____p___#",
+      "#_p______#p_______#______p_#",
+      "####+########+########+#####",
+      "#p.........................#",
+      "#.........................p#",
+      "####+########+########+#####",
+      "#________#________#________#",
+      "#_c_____p#__tttt__#ss_ss_ss#",
+      "#____tt__#________#________#",
+      "#_p______#p______p#ss_ss_ss#",
+      "#________#________#________#",
+      "#sss___p_#s_ss__ss#p______p#",
+      "############################"
+    ],
+    "start": [
+      4,
+      5
+    ]
+  },
+  "eventSettings": {
+    "minSteps": 28,
+    "maxSteps": 50,
+    "maxPerRun": 4
+  },
+  "ambient": {
+    "greetDistance": 2.2,
+    "cooldownSec": 10,
+    "bubbleSec": 2.4,
+    "lines": [
+      "Gude!",
+      "Hallo!",
+      "Diese Prozesse wieder…",
+      "IT läuft!",
+      "Sommerfest dieses Jahr?",
+      "Ich vermisse Starmind",
+      "Gude",
+      "Kuchen im 1. Stock",
+      "Deutschlands sicherste Bank",
+      "Die Anstalt wieder..",
+      "IDV oder nicht",
+      "Muss schnell zur Townhall"
+    ],
+    "wanderers": [
+      {
+        "id": "jonas",
+        "name": "Jonas",
+        "start": [
+          8,
+          8
+        ],
+        "look": {
+          "shirt": "#e86a3a",
+          "pants": "#2c3448",
+          "hair": "#403020",
+          "skin": "#f0c8a0",
+          "accessory": "glasses"
+        }
+      },
+      {
+        "id": "katrin",
+        "name": "Katrin",
+        "start": [
+          20,
+          9
+        ],
+        "look": {
+          "shirt": "#38a8a0",
+          "pants": "#3a3a50",
+          "hair": "#b03a2a",
+          "skin": "#e8b890"
+        }
+      },
+      {
+        "id": "sven",
+        "name": "Sven",
+        "start": [
+          4,
+          14
+        ],
+        "look": {
+          "shirt": "#a0a0b8",
+          "pants": "#2a2f40",
+          "hair": "#d8c068",
+          "skin": "#f0c8a0",
+          "accessory": "tie"
+        }
+      }
+    ]
+  },
+  "id": "urlaubsantrag",
+  "title": "URLAUBS QUEST",
+  "subtitle": "Vom Urlaubsantrag zur Genehmigung",
+  "intro": [
+    "Du willst im August zwei Wochen Urlaub nehmen.",
+    "Hol dir die Unterschriften: Teamleitung, Personalabteilung und Entgeltabrechnung.",
+    "Eine fehlende Vertretung kostet dich eine Runde – plane klug!"
+  ],
+  "roundLimit": 3,
+  "firstStage": "intake",
+  "pipeline": [
+    {
+      "label": "Antrag",
+      "stages": [
+        "intake"
+      ]
+    },
+    {
+      "label": "Teamleitung",
+      "stages": [
+        "lead_review"
+      ]
+    },
+    {
+      "label": "Personal",
+      "stages": [
+        "hr_check",
+        "rework_hr"
+      ]
+    },
+    {
+      "label": "Abrechnung",
+      "stages": [
+        "payroll"
+      ]
+    }
+  ],
+  "scoring": {
+    "hintCost": 3,
+    "factBonus": 2,
+    "stars": [
+      {
+        "roundsAtMost": 0,
+        "stars": 3
+      },
+      {
+        "roundsAtMost": 2,
+        "stars": 2
+      }
+    ]
+  },
+  "ui": {
+    "document": "ANTRAG",
+    "objective": "AUFTRAG"
+  },
+  "debrief": {
+    "stats": [
+      {
+        "label": "TIPPS",
+        "stat": "hints"
+      },
+      {
+        "label": "GESPRÄCHE",
+        "stat": "talks"
+      }
+    ]
+  },
+  "texts": {
+    "wrongNpc": "„Dafür bin ich nicht zuständig. Versuch es hier: {room}.“",
+    "hintPrefix": "Tipp (−{n} Punkte): ",
+    "factPrefix": "Wusstest du? ",
+    "successTitle": "URLAUB GENEHMIGT!",
+    "successText": "Alle Stempel sind drin – ab in den Süden.",
+    "failedTitle": "ANTRAG ABGELEHNT",
+    "failedText": "Zu viele Rückfragen: Der Antrag verfällt, der Urlaub wird verschoben."
+  },
+  "rooms": [
+    {
+      "id": "pm",
+      "label": "MEIN BÜRO",
+      "color": "#5a6fa8",
+      "rect": [
+        1,
+        1,
+        8,
+        6
+      ]
+    },
+    {
+      "id": "bmz",
+      "label": "TEAMLEITUNG",
+      "color": "#4f9a6a",
+      "rect": [
+        10,
+        1,
+        8,
+        6
+      ]
+    },
+    {
+      "id": "pea",
+      "label": "PERSONAL",
+      "color": "#8a62b0",
+      "rect": [
+        19,
+        1,
+        8,
+        6
+      ]
+    },
+    {
+      "id": "pause",
+      "label": "PAUSENRAUM",
+      "color": "#c08a4a",
+      "rect": [
+        1,
+        11,
+        8,
+        6
+      ]
+    },
+    {
+      "id": "tl",
+      "label": "ABRECHNUNG",
+      "color": "#b05a5a",
+      "rect": [
+        10,
+        11,
+        8,
+        6
+      ]
+    },
+    {
+      "id": "archiv",
+      "label": "ARCHIV",
+      "color": "#4a9aa0",
+      "rect": [
+        19,
+        11,
+        8,
+        6
+      ]
+    }
+  ],
+  "npcs": {
+    "anna": {
+      "name": "Anna Berger",
+      "title": "Kollegin",
+      "room": "pm",
+      "at": [
+        5,
+        4
+      ],
+      "facing": "left",
+      "look": {
+        "shirt": "#e8a838",
+        "pants": "#3a3f5c",
+        "hair": "#6b3a1e",
+        "skin": "#f0c8a0",
+        "accessory": "bow"
+      }
+    },
+    "meier": {
+      "name": "Frau Meier",
+      "title": "Teamleiterin",
+      "room": "bmz",
+      "at": [
+        14,
+        3
+      ],
+      "facing": "down",
+      "look": {
+        "shirt": "#3fa56a",
+        "pants": "#2c3a30",
+        "hair": "#c8c8d0",
+        "skin": "#e8b890",
+        "accessory": "glasses"
+      }
+    },
+    "petrov": {
+      "name": "Herr Petrov",
+      "title": "Personalabteilung",
+      "room": "pea",
+      "at": [
+        24,
+        3
+      ],
+      "facing": "down",
+      "look": {
+        "shirt": "#7a4ab0",
+        "pants": "#2a2a40",
+        "hair": "#202020",
+        "skin": "#d8a070",
+        "accessory": "tie"
+      }
+    },
+    "schmidt": {
+      "name": "Frau Schmidt",
+      "title": "Entgeltabrechnung",
+      "room": "tl",
+      "at": [
+        16,
+        12
+      ],
+      "facing": "left",
+      "look": {
+        "shirt": "#c04848",
+        "pants": "#202030",
+        "hair": "#a03020",
+        "skin": "#f0c8a0",
+        "accessory": "glasses"
+      }
+    },
+    "karl": {
+      "name": "Karl",
+      "title": "Hausmeister",
+      "room": "pause",
+      "at": [
+        3,
+        12
+      ],
+      "facing": "down",
+      "role": "hint",
+      "look": {
+        "shirt": "#e0d8c0",
+        "pants": "#506080",
+        "hair": "#808080",
+        "skin": "#e8b890",
+        "accessory": "cap"
+      }
+    },
+    "bauer": {
+      "name": "Herr Bauer",
+      "title": "Betriebsrat",
+      "room": "archiv",
+      "at": [
+        21,
+        13
+      ],
+      "facing": "down",
+      "role": "fact",
+      "look": {
+        "shirt": "#8a7a5a",
+        "pants": "#403830",
+        "hair": "#d0d0d0",
+        "skin": "#e8b890",
+        "accessory": "glasses"
+      }
+    }
+  },
+  "dialogs": {
+    "anna_intro": {
+      "text": "Hallo! Du willst Urlaub einreichen? Hier ist das Antragsformular.",
+      "choices": [
+        {
+          "text": "Danke – muss ich noch etwas beachten?",
+          "goto": "anna_info",
+          "score": 2
+        },
+        {
+          "text": "Her damit!",
+          "reply": "„Viel Erfolg!“",
+          "result": "DONE",
+          "learn": "Jeder Urlaub beginnt mit einem Antrag – mündliche Absprachen zählen nicht.",
+          "score": 3
+        }
+      ]
+    },
+    "anna_info": {
+      "text": "Plane Vertretung und Resturlaub ein. Ohne beides geht es später nicht durch.",
+      "choices": [
+        {
+          "text": "Verstanden, ich nehme das Formular.",
+          "reply": "„Dann los!“",
+          "result": "DONE",
+          "learn": "Vertretung und Resturlaub sind die häufigsten Gründe für Rückfragen.",
+          "score": 3
+        }
+      ]
+    },
+    "lead_intro": {
+      "text": "Guten Tag. Sie möchten Urlaub einreichen?",
+      "choices": [
+        {
+          "text": "Hier mein Antrag – die Vertretung mit Herrn Weber ist abgesprochen.",
+          "reply": "„Sehr gut, genehmigt.“",
+          "result": "OK",
+          "flag": "vertretung",
+          "learn": "Eine geklärte Vertretung macht die Genehmigung einfach.",
+          "score": 10
+        },
+        {
+          "text": "Hier mein Antrag. Um die Vertretung kümmere ich mich später.",
+          "reply": "„Na gut, von mir aus.“",
+          "result": "OK",
+          "learn": "Die Teamleitung gibt oft frei – die Personalabteilung prüft die Vertretung aber trotzdem.",
+          "score": 3
+        },
+        {
+          "text": "Ich bin dann mal weg.",
+          "reply": "Frau Meier sieht Sie verständnislos an.",
+          "result": "UNKLAR",
+          "learn": "Ohne Antrag gibt es keinen Urlaub.",
+          "score": -5
+        }
+      ]
+    },
+    "hr_intro": {
+      "text": "Personalabteilung, guten Tag. Bitte Ihren Antrag.",
+      "choices": [
+        {
+          "text": "Antrag samt Resturlaubsübersicht.",
+          "reply": "Herr Petrov prüft die Unterlagen.",
+          "result": "CHECK",
+          "learn": "Mit Resturlaubsübersicht ist die Prüfung in Minuten erledigt.",
+          "score": 8
+        },
+        {
+          "text": "Ich glaube, ich habe noch genug Tage.",
+          "reply": "„Glauben reicht nicht.“",
+          "result": "UNKLAR",
+          "learn": "Die Personalabteilung rechnet nach – bring die Zahlen mit.",
+          "score": -4
+        }
+      ]
+    },
+    "hr_recheck": {
+      "text": "Sie schon wieder. Liegt jetzt alles vor?",
+      "choices": [
+        {
+          "text": "Ja, Vertretung ist eingetragen.",
+          "reply": "Herr Petrov prüft erneut.",
+          "result": "CHECK",
+          "learn": "Änderungen sichtbar machen beschleunigt die Prüfung.",
+          "score": 8
+        },
+        {
+          "text": "Schauen Sie einfach noch mal drauf.",
+          "reply": "„Das ist keine Antwort.“",
+          "result": "UNKLAR",
+          "learn": "Rückfragen konkret beantworten.",
+          "score": -4
+        }
+      ]
+    },
+    "anna_rework": {
+      "text": "Die Personalabteilung vermisst die Vertretung. Was machen wir?",
+      "choices": [
+        {
+          "text": "Mit Herrn Weber sprechen und die Vertretung im Antrag eintragen.",
+          "reply": "„So gehört sich das.“",
+          "result": "REVISED",
+          "flag": "vertretung",
+          "learn": "Vertretung schriftlich im Antrag festhalten.",
+          "score": 5
+        },
+        {
+          "text": "Wir behaupten einfach, es sei geregelt.",
+          "reply": "„Hm, das fliegt auf …“",
+          "result": "SLOPPY",
+          "learn": "Unwahre Angaben führen zu neuen Rückfragen.",
+          "score": -3
+        }
+      ]
+    },
+    "payroll_intro": {
+      "text": "Entgeltabrechnung. Genehmigter Antrag?",
+      "choices": [
+        {
+          "text": "Ja, mit Stempel von Teamleitung und Personal.",
+          "reply": "„Wird vorgemerkt – schönen Urlaub!“",
+          "result": "DONE",
+          "learn": "Erst nach beiden Freigaben wird der Urlaub in der Abrechnung berücksichtigt.",
+          "score": 10
+        },
+        {
+          "text": "Passt schon alles.",
+          "reply": "„Dann halt so.“",
+          "result": "DONE",
+          "learn": "Besser: Freigaben ausdrücklich nennen.",
+          "score": 2
+        }
+      ]
+    }
+  },
+  "stages": [
+    {
+      "id": "intake",
+      "title": "Antrag abholen",
+      "room": "pm",
+      "npc": "anna",
+      "objective": "Hole das Antragsformular bei Anna im Büro.",
+      "hint": "Anna sitzt im eigenen Büro.",
+      "fact": "Ohne Antrag kein Urlaub.",
+      "dialog": "anna_intro",
+      "on": {
+        "DONE": {
+          "next": "lead_review",
+          "giveDoc": true,
+          "docVersion": 1,
+          "message": "Antrag v1 erhalten! Weiter zur Teamleitung.",
+          "tone": "good"
+        }
+      }
+    },
+    {
+      "id": "lead_review",
+      "title": "Freigabe Teamleitung",
+      "room": "bmz",
+      "npc": "meier",
+      "objective": "Hole die Unterschrift von Frau Meier.",
+      "hint": "Frau Meier möchte wissen, wer dich vertritt.",
+      "fact": "Die Teamleitung entscheidet über die Abdeckung im Team.",
+      "dialog": "lead_intro",
+      "on": {
+        "OK": {
+          "next": "hr_check",
+          "score": 5,
+          "message": "Teamleitung hat unterschrieben.",
+          "tone": "good"
+        },
+        "UNKLAR": {
+          "costsRound": true,
+          "message": "Ohne Antrag keine Unterschrift.",
+          "tone": "bad"
+        }
+      }
+    },
+    {
+      "id": "hr_check",
+      "title": "Prüfung Personal",
+      "room": "pea",
+      "npc": "petrov",
+      "objective": "Bringe den Antrag zu Herrn Petrov.",
+      "hint": "Herr Petrov prüft Resturlaub und Vertretung.",
+      "fact": "Die Personalabteilung führt das Urlaubskonto.",
+      "dialog": "hr_intro",
+      "repeatDialog": "hr_recheck",
+      "on": {
+        "CHECK": [
+          {
+            "when": {
+              "flag": "vertretung"
+            },
+            "next": "payroll",
+            "score": 10,
+            "message": "Personal ist einverstanden!",
+            "tone": "good"
+          },
+          {
+            "next": "rework_hr",
+            "costsRound": true,
+            "message": "Es fehlt die Vertretung. Zurück zu Anna.",
+            "tone": "bad"
+          }
+        ],
+        "UNKLAR": {
+          "costsRound": true,
+          "message": "Herr Petrov braucht Zahlen.",
+          "tone": "bad"
+        }
+      }
+    },
+    {
+      "id": "rework_hr",
+      "title": "Vertretung klären",
+      "room": "pm",
+      "npc": "anna",
+      "objective": "Kläre die Vertretung mit Anna.",
+      "hint": "Anna weiß, wie man die Vertretung einträgt.",
+      "fact": "Vertretungen werden im Antrag dokumentiert.",
+      "dialog": "anna_rework",
+      "on": {
+        "REVISED": {
+          "next": "hr_check",
+          "docVersion": 1,
+          "score": 5,
+          "message": "Antrag ergänzt (neue Version).",
+          "tone": "info"
+        },
+        "SLOPPY": {
+          "next": "hr_check",
+          "docVersion": 1,
+          "costsRound": true,
+          "message": "Das gibt Ärger.",
+          "tone": "bad"
+        }
+      }
+    },
+    {
+      "id": "payroll",
+      "title": "Abrechnung",
+      "room": "tl",
+      "npc": "schmidt",
+      "objective": "Gib den Antrag bei Frau Schmidt ab.",
+      "hint": "Frau Schmidt sitzt in der Abrechnung.",
+      "fact": "Die Abrechnung vermerkt genehmigten Urlaub.",
+      "dialog": "payroll_intro",
+      "on": {
+        "DONE": {
+          "ending": "success",
+          "score": 5,
+          "message": "Urlaub genehmigt!",
+          "tone": "good"
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "printer",
+      "title": "Druckerstau",
+      "icon": "🖨️",
+      "speaker": {
+        "name": "Drucker",
+        "title": "Papierstau!",
+        "look": {
+          "shirt": "#d0d4e0",
+          "pants": "#60647a",
+          "hair": "#d0d4e0",
+          "skin": "#d0d4e0"
+        }
+      },
+      "text": "Piep! Der Drucker blinkt rot und Papier quillt heraus. Hinter dir bildet sich eine kleine Schlange.",
+      "choices": [
+        {
+          "text": "Selbst Hand anlegen und den Stau beheben.",
+          "reply": "Klack – und es läuft wieder. Die Kolleg:innen sind dankbar.",
+          "score": 4,
+          "flag": "printer_fixed",
+          "learn": "Kleine Hilfen im Alltag stärken die Zusammenarbeit – und die brauchst du für Freigaben."
+        },
+        {
+          "text": "Den IT-Support rufen.",
+          "reply": "Der Support kommt in 20 Minuten. Passt.",
+          "score": 1,
+          "learn": "Richtig eskalieren ist auch eine Fähigkeit – Hauptsache, es bleibt nicht liegen."
+        },
+        {
+          "text": "Einfach vorbeigehen.",
+          "reply": "Hinter dir wird gemurrt…",
+          "score": -2,
+          "learn": "Wegschauen kostet Vertrauen im Team."
+        }
+      ]
+    },
+    {
+      "id": "status",
+      "title": "Statusabfrage",
+      "icon": "💬",
+      "speaker": {
+        "name": "Tom",
+        "title": "Kollege aus dem Vertrieb",
+        "look": {
+          "shirt": "#d8884a",
+          "pants": "#303848",
+          "hair": "#201810",
+          "skin": "#e8b890"
+        }
+      },
+      "text": "Hey! Kurze Frage: Wie weit ist der Modulvorschlag? Mein Kunde fragt schon nach.",
+      "choices": [
+        {
+          "text": "Kurz und ehrlich: Stand, nächster Schritt, geschätzter Termin.",
+          "reply": "„Perfekt, genau das brauche ich!“",
+          "score": 5,
+          "learn": "Proaktive, ehrliche Statusinfos verhindern Rückfragen und Eskalationen."
+        },
+        {
+          "text": "Das dauert noch, frag später nochmal.",
+          "reply": "Tom zuckt mit den Schultern.",
+          "score": -2,
+          "learn": "Vertrösten ohne Information erzeugt Nachfragen."
+        },
+        {
+          "text": "Ich zeige dir das Dokument.",
+          "reply": "„Okay, aber ich verstehe nicht alles…“",
+          "score": 1,
+          "learn": "Ein Dokument ersetzt keine Einordnung."
+        }
+      ]
+    },
+    {
+      "id": "fire",
+      "title": "Probealarm",
+      "icon": "🚨",
+      "speaker": {
+        "name": "Lautsprecher",
+        "title": "Brandschutz-Übung",
+        "look": {
+          "shirt": "#d84a4a",
+          "pants": "#303848",
+          "hair": "#303848",
+          "skin": "#e8b890",
+          "accessory": "cap"
+        }
+      },
+      "text": "WÄÄÄÄH! Probealarm: Alle Mitarbeitenden werden gebeten, das Gebäude zu verlassen.",
+      "choices": [
+        {
+          "text": "Mappe sichern, Weg folgen, ab zum Sammelplatz.",
+          "reply": "Alles ruhig, alle sind vollzählig. Gut gemacht!",
+          "score": 5,
+          "learn": "Sicherheitsregeln gelten für alle – auch bei Termindruck."
+        },
+        {
+          "text": "Schnell noch die Mail zu Ende schreiben.",
+          "reply": "Der Brandschutzbeauftragte schaut streng.",
+          "score": -5,
+          "learn": "Nichts im Büro ist wichtiger als ein Alarm."
+        }
+      ]
+    },
+    {
+      "id": "version",
+      "title": "Versionschaos",
+      "icon": "📄",
+      "speaker": {
+        "name": "Lena Fischer",
+        "title": "Projektassistenz",
+        "look": {
+          "shirt": "#e8a838",
+          "pants": "#3a3f5c",
+          "hair": "#6b3a1e",
+          "skin": "#f0c8a0",
+          "accessory": "bow"
+        }
+      },
+      "text": "Lena ruft: „Warte! Im Anhang war noch eine ältere Version. Bist du sicher, dass du die aktuelle dabeihast?“",
+      "choices": [
+        {
+          "text": "Versionsnummer kurz prüfen – ja, alles aktuell.",
+          "reply": "„Super, dann kann nichts schiefgehen.“",
+          "score": 5,
+          "learn": "Version prüfen vor dem Versand: einfacher Check, große Wirkung."
+        },
+        {
+          "text": "Wird schon passen.",
+          "reply": "Lena schaut skeptisch. Später fällt es auf…",
+          "score": -5,
+          "round": 1,
+          "learn": "Veraltete Versionen kosten eine komplette Prüfrunde."
+        }
+      ],
+      "requiresDoc": true
+    },
+    {
+      "id": "intern",
+      "title": "Neue Kollegin",
+      "icon": "🙋",
+      "speaker": {
+        "name": "Mia",
+        "title": "Praktikantin",
+        "look": {
+          "shirt": "#38b8a8",
+          "pants": "#303848",
+          "hair": "#e0a020",
+          "skin": "#f0c8a0"
+        }
+      },
+      "text": "Hallo! Ich bin neu. Kannst du mir kurz erklären, wie ein Modulvorschlag durch das Haus kommt?",
+      "choices": [
+        {
+          "text": "Klar: BMZ prüft, Partner gibt Feedback, Teamleitung genehmigt.",
+          "reply": "„Danke, das war super verständlich!“",
+          "score": 4,
+          "learn": "Wissen weitergeben festigt den Prozess für alle."
+        },
+        {
+          "text": "Frag bitte jemand anderen, ich habe zu tun.",
+          "reply": "Mia nickt, etwas enttäuscht.",
+          "score": -1,
+          "learn": "Wissen teilen kostet kaum Zeit – spart aber viel später."
+        }
+      ]
+    },
+    {
+      "id": "coffee",
+      "title": "Gratis-Kaffee",
+      "icon": "☕",
+      "speaker": {
+        "name": "Karl",
+        "title": "Pausenraum",
+        "look": {
+          "shirt": "#e0d8c0",
+          "pants": "#506080",
+          "hair": "#808080",
+          "skin": "#e8b890",
+          "accessory": "cap"
+        }
+      },
+      "text": "Karl winkt dir zu: „Die Maschine hat sich verzählt – dein Kaffee ist heute gratis!“",
+      "choices": [
+        {
+          "text": "Danke, das tut gut!",
+          "reply": "Der Kaffee wärmt. Du fühlst dich bereit für die nächste Runde.",
+          "score": 3,
+          "learn": "Kleine Pausen halten den Kopf klar – auch im Prozessstress."
+        }
+      ]
+    },
+    {
+      "id": "privacy",
+      "title": "Datenschutz",
+      "icon": "🔒",
+      "speaker": {
+        "name": "Datenschutz",
+        "title": "Hinweis",
+        "look": {
+          "shirt": "#8a6ad8",
+          "pants": "#303848",
+          "hair": "#303848",
+          "skin": "#e8b890",
+          "accessory": "glasses"
+        }
+      },
+      "text": "Du willst das Dokument an einen externen Kontakt schicken. Es enthält vertrauliche Finanzzahlen.",
+      "choices": [
+        {
+          "text": "Über den gesicherten Austausch senden.",
+          "reply": "Verschlüsselt und nachvollziehbar – so soll es sein.",
+          "score": 5,
+          "learn": "Vertrauliche Unterlagen nur über gesicherte Wege."
+        },
+        {
+          "text": "Normale Mail reicht, geht schneller.",
+          "reply": "Das war riskant! Datenschutz meldet sich bei dir.",
+          "score": -5,
+          "round": 1,
+          "learn": "Datenschutzverstöße führen zu Nacharbeit und Ärger."
+        }
+      ],
+      "requiresDoc": true
+    }
+  ],
+  "achievements": [
+    {
+      "id": "first_talk",
+      "title": "Erster Kontakt",
+      "description": "Sprich zum ersten Mal mit einer Kollegin oder einem Kollegen.",
+      "icon": "👋",
+      "rule": {
+        "stat": "talks",
+        "gte": 1
+      }
+    },
+    {
+      "id": "tour",
+      "title": "Hausrundgang",
+      "description": "Betritt alle sechs Räume im Haus.",
+      "icon": "🏢",
+      "rule": {
+        "roomsVisited": 6
+      }
+    },
+    {
+      "id": "runner",
+      "title": "Büro-Marathon",
+      "description": "Laufe in einer Runde 300 Schritte.",
+      "icon": "👟",
+      "rule": {
+        "stat": "steps",
+        "gte": 300
+      }
+    },
+    {
+      "id": "coffee",
+      "title": "Kaffeepause",
+      "description": "Hole dir einen Tipp bei Karl.",
+      "icon": "☕",
+      "rule": {
+        "stat": "hints",
+        "gte": 1
+      }
+    },
+    {
+      "id": "curious",
+      "title": "Wissbegierig",
+      "description": "Lass dir vom Archivar drei Prozess-Fakten erzählen.",
+      "icon": "📚",
+      "rule": {
+        "stat": "facts",
+        "gte": 3
+      }
+    },
+    {
+      "id": "crisis",
+      "title": "Krisenmanager:in",
+      "description": "Meistere zwei Zwischenfälle richtig.",
+      "icon": "🛟",
+      "rule": {
+        "stat": "eventsGood",
+        "gte": 2
+      }
+    },
+    {
+      "id": "printer",
+      "title": "Drucker-Flüsterer:in",
+      "description": "Beheb den Papierstau eigenhändig.",
+      "icon": "🖨️",
+      "rule": {
+        "flag": "printer_fixed"
+      }
+    },
+    {
+      "id": "clean",
+      "title": "Makellos",
+      "description": "Erhalte die Freigabe ohne eine einzige Überarbeitungsrunde.",
+      "icon": "💎",
+      "rule": {
+        "finished": "success",
+        "roundsAtMost": 0
+      }
+    },
+    {
+      "id": "alone",
+      "title": "Ohne Hilfe",
+      "description": "Erhalte die Freigabe, ohne einen Tipp zu kaufen.",
+      "icon": "🧠",
+      "rule": {
+        "finished": "success",
+        "statAtMost": {
+          "hints": 0
+        }
+      }
+    },
+    {
+      "id": "direct",
+      "title": "Zielstrebig",
+      "description": "Erhalte die Freigabe, ohne je zur falschen Person zu gehen.",
+      "icon": "🎯",
+      "rule": {
+        "finished": "success",
+        "statAtMost": {
+          "wrongVisits": 0
+        }
+      }
+    },
+    {
+      "id": "highscore",
+      "title": "Punktejäger:in",
+      "description": "Beende den Prozess mit mindestens 70 Punkten.",
+      "icon": "🏆",
+      "rule": {
+        "finished": "success",
+        "scoreAtLeast": 70
+      }
+    },
+    {
+      "id": "grit",
+      "title": "Durchhalter:in",
+      "description": "Erhalte die Freigabe trotz mindestens zwei Überarbeitungsrunden.",
+      "icon": "💪",
+      "rule": {
+        "finished": "success",
+        "roundsAtLeast": 2
+      }
+    }
+  ]
+}

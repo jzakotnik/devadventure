@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import raw from "../_content/modulvorschlag.json"
 import { Sound } from "../_game/audio"
 import {
   addSteps,
@@ -11,6 +10,7 @@ import {
   enterRoom,
   pickEvent,
   stageOf,
+  uiOf,
   startEvent,
   startTalk,
   type GameState,
@@ -18,14 +18,11 @@ import {
 import { TILE } from "../_game/map"
 import { Renderer, SCALE, VIEW_H, VIEW_W } from "../_game/render"
 import type { Dir, Process } from "../_game/schema"
-import { validateProcess } from "../_game/validate"
 import { World } from "../_game/world"
 import styles from "../game.module.css"
 import { DialogBox } from "./DialogBox"
 import { Achievements } from "./Achievements"
 import { Debrief } from "./Debrief"
-
-const proc = raw as unknown as Process
 
 function banners0(fresh: Array<{ seq: number; id: string }>, known: string[]) {
   return fresh.map((f) => ({
@@ -33,12 +30,6 @@ function banners0(fresh: Array<{ seq: number; id: string }>, known: string[]) {
     id: f.id,
     isNew: !known.includes(f.id),
   }))
-}
-
-if (process.env.NODE_ENV !== "production") {
-  const errs = validateProcess(proc)
-  if (errs.length)
-    console.error("[game] invalid process definition:\n" + errs.join("\n"))
 }
 
 type Mode = "title" | "play" | "end"
@@ -58,7 +49,8 @@ const KEYS: Record<string, Dir> = {
   D: "right",
 }
 
-export function GameClient() {
+export function GameClient({ proc }: { proc: Process }) {
+  const ui = uiOf(proc)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const worldRef = useRef<World | null>(null)
   const soundRef = useRef<Sound | null>(null)
@@ -427,15 +419,15 @@ export function GameClient() {
                 ))}
               </ol>
               <div className={styles.objective}>
-                <b>ZIEL</b> {stage.objective}
+                <b>{ui.objective}</b> {stage.objective}
               </div>
             </div>
             <div className={styles.hudRight}>
               <div>
-                PUNKTE <b>{state.score}</b>
+                {ui.score} <b>{state.score}</b>
               </div>
               <div>
-                RUNDEN{" "}
+                {ui.rounds}{" "}
                 <b
                   className={
                     state.round >= proc.roundLimit ? styles.danger : ""
@@ -445,14 +437,17 @@ export function GameClient() {
                 </b>
               </div>
               <div>
-                ERFOLGE{" "}
+                {ui.achievements}{" "}
                 <b>
                   {state.unlocked.length}/{proc.achievements.length}
                 </b>
               </div>
-              <div>
-                DOKUMENT <b>{state.hasDoc ? `v${state.docVersion}` : "–"}</b>
-              </div>
+              {ui.document && (
+                <div>
+                  {ui.document}{" "}
+                  <b>{state.hasDoc ? `v${state.docVersion}` : "–"}</b>
+                </div>
+              )}
               <button
                 className={styles.mute}
                 onClick={() => {
@@ -461,7 +456,7 @@ export function GameClient() {
                   setMuted(next)
                 }}
               >
-                {muted ? "TON AUS" : "TON AN"} [M]
+                {muted ? ui.muteOff : ui.muteOn} [M]
               </button>
             </div>
             <div className={styles.banners}>
@@ -472,7 +467,8 @@ export function GameClient() {
                     <span className={styles.bannerIcon}>{a.icon}</span>
                     <div>
                       <div className={styles.bannerHead}>
-                        ERFOLG FREIGESCHALTET{b.isNew ? " · NEU!" : ""}
+                        {ui.unlockedHead}
+                        {b.isNew ? " · NEU!" : ""}
                       </div>
                       <b>{a.title}</b>
                       <div className={styles.bannerDesc}>{a.description}</div>
@@ -496,12 +492,11 @@ export function GameClient() {
                 onChoose={onChoose}
                 onAdvance={onAdvance}
                 onBlip={onBlip}
+                ui={ui}
               />
             )}
             {!state.dialog && state.round === 0 && state.log.length === 0 && (
-              <div className={styles.help}>
-                PFEILTASTEN / WASD: LAUFEN · E: SPRECHEN · MAUSKLICK: HINLAUFEN
-              </div>
+              <div className={styles.help}>{ui.hintHelp}</div>
             )}
           </>
         )}
@@ -519,17 +514,17 @@ export function GameClient() {
               className={styles.ghostBtn}
               onClick={() => setShowAch(true)}
             >
-              🏆 ERFOLGE {allUnlocked.length}/{proc.achievements.length}
+              🏆 {ui.achievements} {allUnlocked.length}/
+              {proc.achievements.length}
             </button>
             <button className={styles.startBtn} onClick={start}>
-              ▶ ENTER = START
+              {ui.start}
             </button>
-            <p className={styles.keys}>
-              Pfeiltasten / WASD laufen · E oder Klick sprechen · 1–3 antworten
-              · M Ton
-            </p>
+            <p className={styles.keys}>{ui.titleKeys}</p>
             {best !== null && (
-              <p className={styles.keys}>BESTER SCORE: {best}</p>
+              <p className={styles.keys}>
+                {ui.bestScore.replace("{n}", String(best))}
+              </p>
             )}
           </div>
         )}

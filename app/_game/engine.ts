@@ -1,4 +1,14 @@
-import type { AchievementRule, Choice, NpcLook, Process, Stage } from "./schema"
+import {
+  DEFAULT_SCORING,
+  type AchievementRule,
+  type Choice,
+  type Effect,
+  type NpcLook,
+  type Process,
+  type Scoring,
+  type Stage,
+} from "./schema"
+import { DEFAULT_UI } from "./schema"
 
 /** Pure, immutable process state machine. No DOM, no React. */
 
@@ -82,6 +92,14 @@ export function createState(proc: Process): GameState {
   }
 }
 
+export function scoringOf(proc: Process): Scoring {
+  return { ...DEFAULT_SCORING, ...proc.scoring }
+}
+
+export function uiOf(proc: Process) {
+  return { ...DEFAULT_UI, ...proc.ui }
+}
+
 export function stageOf(proc: Process, s: GameState): Stage {
   return proc.stages.find((st) => st.id === s.stageId)!
 }
@@ -120,6 +138,7 @@ function startTalkRaw(proc: Process, s: GameState, npcId: string): GameState {
   const stage = stageOf(proc, s)
   const npc = proc.npcs[npcId]
   if (!npc) return s
+  const scoring = scoringOf(proc)
 
   if (npcId === stage.npc) {
     const repeat = (s.visits[stage.id] ?? 0) > 0 && stage.repeatDialog
@@ -136,20 +155,28 @@ function startTalkRaw(proc: Process, s: GameState, npcId: string): GameState {
   if (npc.role === "hint") {
     return {
       ...s,
-      score: s.score - 2,
+      score: s.score - scoring.hintCost,
       hintsUsed: s.hintsUsed + 1,
-      dialog: say(npcId, proc.texts.hintPrefix + stage.hint),
+      dialog: say(
+        npcId,
+        proc.texts.hintPrefix.replace("{n}", String(scoring.hintCost)) +
+          stage.hint
+      ),
     }
   }
   if (npc.role === "fact") {
     const first = !s.factsSeen.includes(stage.id)
     return {
       ...s,
-      score: s.score + (first ? 3 : 0),
+      score: s.score + (first ? scoring.factBonus : 0),
       factsSeen: first ? [...s.factsSeen, stage.id] : s.factsSeen,
       dialog: say(
         npcId,
-        proc.texts.factPrefix + stage.fact + (first ? " (+3 Punkte)" : "")
+        proc.texts.factPrefix +
+          stage.fact +
+          (first
+            ? uiOf(proc).factBonus.replace("{n}", String(scoring.factBonus))
+            : "")
       ),
     }
   }
@@ -243,7 +270,7 @@ function applyResult(
 ): GameState {
   if (!result) return s
   const stage = stageOf(proc, s)
-  const eff = stage.on[result]
+  const eff = resolveEffect(stage.on[result], s)
   if (!eff) return s
 
   let out: GameState = {
@@ -262,12 +289,23 @@ function applyResult(
       : s.toast,
   }
   if (eff.ending === "success") {
-    const stars = out.round === 0 ? 3 : out.round <= 1 ? 2 : 1
+    const stars =
+      scoringOf(proc).stars.find((t) => out.round <= t.roundsAtMost)?.stars ?? 1
     out = { ...out, finished: { outcome: "success", stars } }
   } else if (eff.ending === "failed" || out.round > proc.roundLimit) {
     out = { ...out, finished: { outcome: "failed", stars: 0 } }
   }
   return out
+}
+
+/** First effect whose `when` holds; a plain effect always applies. */
+function resolveEffect(
+  entry: Effect | Effect[] | undefined,
+  s: GameState
+): Effect | null {
+  if (!entry) return null
+  if (!Array.isArray(entry)) return entry
+  return entry.find((e) => !e.when || ruleMet(e.when, s)) ?? null
 }
 
 function bump(stats: Record<string, number>, key: string, by = 1) {
@@ -379,6 +417,7 @@ function ruleMet(rule: AchievementRule, s: GameState): boolean {
     return false
   if (rule.scoreAtLeast !== undefined && s.score < rule.scoreAtLeast)
     return false
+  if (rule.scoreAtMost !== undefined && s.score > rule.scoreAtMost) return false
   if (rule.flag && !s.flags.includes(rule.flag)) return false
   if (rule.roomsVisited !== undefined && v.rooms < rule.roomsVisited)
     return false
