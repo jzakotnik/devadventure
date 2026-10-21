@@ -398,11 +398,14 @@ export function Tree({
   path,
   ctx,
   open = false,
+  removable = false,
 }: {
   value: any
   path: Path
   ctx: TreeCtx
   open?: boolean
+  /** Show a delete button on the list's own header (set by the parent object). */
+  removable?: boolean
 }) {
   const key = path[path.length - 1]
   const keyName = String(key)
@@ -432,20 +435,32 @@ export function Tree({
     const flat = value.every((x) => typeof x === "string")
     return (
       <Group
-        title={onList ? "Varianten" : keyName}
-        hint={onList ? "die erste passende Bedingung gilt" : undefined}
+        title={keyName}
+        hint={
+          onList
+            ? "Varianten – die erste passende Bedingung gilt"
+            : GLOSS[keyName]
+        }
         open={open}
         actions={
-          onList &&
-          value.length === 1 &&
-          !value[0]?.when && (
-            <button
-              className={styles.mini}
-              onClick={() => ctx.set(path, value[0])}
-            >
-              → einzelne Wirkung
-            </button>
-          )
+          <>
+            {onList && value.length === 1 && !value[0]?.when && (
+              <button
+                className={styles.mini}
+                onClick={() => ctx.set(path, value[0])}
+              >
+                → einzelne Wirkung
+              </button>
+            )}
+            {removable && (
+              <button
+                className={styles.miniDanger}
+                onClick={() => ctx.remove(path)}
+              >
+                ✕
+              </button>
+            )}
+          </>
         }
       >
         {value.map((item, i) => (
@@ -500,6 +515,13 @@ export function Tree({
       {entries.map(([k, v]) => {
         const p = [...path, k]
         const nested = v !== null && typeof v === "object" && !isNumArray(v)
+        const removable =
+          isRecord || optionalFor(path, ctx.root)[k] !== undefined
+        // lists draw their own collapsible header: no extra wrapper
+        if (Array.isArray(v) && nested)
+          return (
+            <Tree key={k} value={v} path={p} ctx={ctx} removable={removable} />
+          )
         return nested ? (
           <Group
             key={k}
