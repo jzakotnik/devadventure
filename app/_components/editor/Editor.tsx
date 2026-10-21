@@ -47,7 +47,13 @@ const OPTIONAL_SECTIONS: Record<string, any> = {
   debrief: { stats: [{ label: "TIPPS", stat: "hints" }] },
 }
 
-export function Editor({ canSave }: { canSave: boolean }) {
+export function Editor({
+  canSave,
+  initialId,
+}: {
+  canSave: boolean
+  initialId?: string
+}) {
   const [games, setGames] = useState<GameInfo[]>([])
   const [proc, setProc] = useState<any>(null)
   const [from, setFrom] = useState("")
@@ -82,7 +88,10 @@ export function Editor({ canSave }: { canSave: boolean }) {
   useEffect(() => {
     // initial data load
     refresh().then((list) => {
-      const first = list.find((g) => g.id === "modulvorschlag") ?? list[0]
+      const first =
+        list.find((g) => g.id === initialId) ??
+        list.find((g) => g.id === "modulvorschlag") ??
+        list[0]
       if (first) load(first.id)
     })
   }, [])
@@ -148,7 +157,7 @@ export function Editor({ canSave }: { canSave: boolean }) {
       <header className={styles.header}>
         <h1>Spiel-Editor</h1>
         <a href="/" className={styles.link}>
-          ← zum Spiel
+          ← zum Menü
         </a>
       </header>
 

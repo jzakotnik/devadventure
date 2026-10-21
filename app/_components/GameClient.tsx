@@ -517,6 +517,9 @@ export function GameClient({ proc }: { proc: Process }) {
               🏆 {ui.achievements} {allUnlocked.length}/
               {proc.achievements.length}
             </button>
+            <a className={styles.ghostBtn} href="/">
+              {ui.menu}
+            </a>
             <button className={styles.startBtn} onClick={start}>
               {ui.start}
             </button>

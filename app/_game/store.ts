@@ -12,6 +12,7 @@ export const ID_PATTERN = /^[a-z0-9_-]{1,40}$/i
 export interface GameInfo {
   id: string
   title: string
+  subtitle: string
   source: "bundled" | "saved"
 }
 
@@ -33,7 +34,12 @@ async function readDir(dir: string, source: GameInfo["source"]) {
     if (!ID_PATTERN.test(id)) continue
     try {
       const proc = JSON.parse(await fs.readFile(path.join(dir, f), "utf8"))
-      out.push({ id, title: String(proc.title ?? id), source })
+      out.push({
+        id,
+        title: String(proc.title ?? id),
+        subtitle: String(proc.subtitle ?? ""),
+        source,
+      })
     } catch {}
   }
   return out

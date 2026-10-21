@@ -5,6 +5,13 @@ import { editorEnabled } from "../_game/store"
 export const metadata: Metadata = { title: "Spiel-Editor" }
 export const dynamic = "force-dynamic"
 
-export default function EditorPage() {
-  return <Editor canSave={editorEnabled()} />
+export default async function EditorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const g = (await searchParams).game
+  return (
+    <Editor canSave={editorEnabled()} initialId={Array.isArray(g) ? g[0] : g} />
+  )
 }
