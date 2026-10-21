@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { Component, useEffect, useMemo, useState, type ReactNode } from "react"
 import { DEFAULT_SCORING, DEFAULT_UI, type Process } from "../../_game/schema"
 import { validateProcess } from "../../_game/validate"
 import styles from "../../editor.module.css"
+import { Overview } from "./Overview"
 import { Tree, removeIn, setIn, type Path } from "./Tree"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -15,6 +16,7 @@ interface GameInfo {
 }
 
 const TABS: Array<{ id: string; label: string; keys: string[] }> = [
+  { id: "overview", label: "Übersicht", keys: [] },
   {
     id: "general",
     label: "Allgemein",
@@ -58,7 +60,7 @@ export function Editor({
   const [proc, setProc] = useState<any>(null)
   const [from, setFrom] = useState("")
   const [saveId, setSaveId] = useState("")
-  const [tab, setTab] = useState("general")
+  const [tab, setTab] = useState("overview")
   const [jsonText, setJsonText] = useState("")
   const [jsonError, setJsonError] = useState("")
   const [msg, setMsg] = useState<{ ok: boolean; text: string[] } | null>(null)
@@ -246,7 +248,7 @@ export function Editor({
         ))}
       </nav>
 
-      {proc && tab !== "json" && (
+      {proc && tab !== "json" && tab !== "overview" && (
         <main className={styles.sections}>
           {current.keys.map((k) => {
             if (!(k in proc))
@@ -284,6 +286,12 @@ export function Editor({
         </main>
       )}
 
+      {proc && tab === "overview" && (
+        <OverviewGuard key={JSON.stringify(errors)}>
+          <Overview proc={proc} onEdit={selectTab} />
+        </OverviewGuard>
+      )}
+
       {proc && tab === "json" && (
         <main className={styles.sections}>
           <textarea
@@ -302,4 +310,25 @@ export function Editor({
       )}
     </div>
   )
+}
+
+/** The overview reads the whole game; half-edited games must not crash the page. */
+class OverviewGuard extends Component<
+  { children: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false }
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+  render() {
+    return this.state.failed ? (
+      <p className={styles.warn}>
+        Die Übersicht kann für den aktuellen Stand nicht gezeichnet werden.
+        Behebe zuerst die gemeldeten Probleme.
+      </p>
+    ) : (
+      this.props.children
+    )
+  }
 }

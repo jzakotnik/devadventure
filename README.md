@@ -43,6 +43,11 @@ previously saved), edit it in tabs (general, world, actors, flow, dialogs, event
 achievements, game values, raw JSON), see validation problems live, and save under an id.
 `/?game=<id>` then plays it. Reference fields (room, npc, stage, dialog) are dropdowns.
 
+The first tab, "Übersicht", draws the flow as a graph: stages as boxes (colour = room),
+results as arrows (dashed = costs a round, yellow = conditional), rework loops below the
+stage they branch from. Click a stage to read its dialog as a script (choice → result →
+what happens next).
+
 Saved games are written to `data/games/<id>.json` (git-ignored; move a file to
 `app/_content/` to ship it with the app). Built-in games are read-only, so use a new id.
 Saving is allowed in dev; in production set `GAME_EDITOR=1` (the endpoint has no

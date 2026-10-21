@@ -89,6 +89,21 @@ const GLOSS: Record<string, string> = {
   rect: "[x, y, Breite, Höhe] in Kacheln",
 }
 
+function isLongText(key: string, v: unknown): boolean {
+  return (
+    typeof v === "string" &&
+    (TEXT_KEYS.has(key) || v.length > 70 || v.includes("\n"))
+  )
+}
+
+/** Enough rows to show the whole text without scrolling (4–16). */
+function rowsFor(text: string): number {
+  const lines = text
+    .split("\n")
+    .reduce((n, l) => n + Math.max(1, Math.ceil(l.length / 90)), 0)
+  return Math.min(16, Math.max(4, lines + 1))
+}
+
 function idsOf(root: any) {
   return {
     rooms: (root.rooms ?? []).map((r: any) => r.id) as string[],
@@ -324,12 +339,12 @@ function Primitive({
       </Field>
     )
   const isMapRow = path[0] === "map" && path[1] === "layout"
-  if (TEXT_KEYS.has(key) || str.length > 70 || str.includes("\n"))
+  if (isLongText(key, str))
     return (
       <Field name={key} hint={hint} wide>
         <textarea
           className={styles.input}
-          rows={Math.min(6, Math.max(2, Math.ceil(str.length / 80)))}
+          rows={rowsFor(str)}
           value={str}
           onChange={(e) => set(e.target.value)}
         />
@@ -505,7 +520,14 @@ export function Tree({
             <Tree value={v} path={p} ctx={ctx} />
           </Group>
         ) : (
-          <div key={k} className={styles.fieldRow}>
+          <div
+            key={k}
+            className={
+              isLongText(k, v)
+                ? `${styles.fieldRow} ${styles.fieldRowWide}`
+                : styles.fieldRow
+            }
+          >
             <Tree value={v} path={p} ctx={ctx} />
             {optionalFor(path, ctx.root)[k] !== undefined && (
               <button
