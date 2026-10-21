@@ -43,7 +43,7 @@ export function Menu({
   return (
     <main className={styles.page}>
       <div className={styles.box}>
-        <h1 className={styles.logo}>PROZESS QUEST</h1>
+        <h1 className={styles.logo}>DEVADVENTURE</h1>
         <h2 className={styles.sub}>Lerne Abläufe spielerisch kennen</h2>
 
         {step === "main" && (
