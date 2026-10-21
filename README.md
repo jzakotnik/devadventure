@@ -53,6 +53,12 @@ Saved games are written to `data/games/<id>.json` (git-ignored; move a file to
 Saving is allowed in dev; in production set `GAME_EDITOR=1` (the endpoint has no
 authentication, so only enable it where that is acceptable). Needs a writable filesystem.
 
+Included games (also good templates for your own): `modulvorschlag` (internal proposal review),
+`urlaubsantrag` (vacation request), `ausschreibung` (public tender: need → procurement office →
+legal → management → publication) and `rechnungsfreigabe` (incoming invoice: capture → goods
+check → three-way match → approval → payment). The last three branch on flags set by earlier
+answers (`when` conditions), so skipping a step sends the player back for rework.
+
 Optional blocks (all fields have defaults, see `schema.ts`):
 
 - `scoring`: `hintCost`, `factBonus`, `stars: [{roundsAtMost, stars}]`.
