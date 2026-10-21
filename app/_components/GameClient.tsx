@@ -34,6 +34,10 @@ function banners0(fresh: Array<{ seq: number; id: string }>, known: string[]) {
 
 type Mode = "title" | "play" | "end"
 
+/** localStorage keys for achievements and best score per game. */
+const storeKey = (kind: "ach" | "best", id: string) =>
+  `devadventure:${kind}:${id}`
+
 const KEYS: Record<string, Dir> = {
   ArrowUp: "up",
   ArrowDown: "down",
@@ -93,7 +97,7 @@ export function GameClient({ proc }: { proc: Process }) {
   useEffect(() => {
     try {
       const v = JSON.parse(
-        localStorage.getItem(`bueroquest:ach:${proc.id}`) ?? "[]"
+        localStorage.getItem(storeKey("ach", proc.id)) ?? "[]"
       )
       if (Array.isArray(v)) {
         allUnlockedRef.current = v
@@ -106,7 +110,7 @@ export function GameClient({ proc }: { proc: Process }) {
   // load best score
   useEffect(() => {
     try {
-      const v = localStorage.getItem(`bueroquest:best:${proc.id}`)
+      const v = localStorage.getItem(storeKey("best", proc.id))
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (v) setBest(Number(v))
     } catch {}
@@ -233,7 +237,7 @@ export function GameClient({ proc }: { proc: Process }) {
     allUnlockedRef.current = merged
     setAllUnlocked(merged)
     try {
-      localStorage.setItem(`bueroquest:ach:${proc.id}`, JSON.stringify(merged))
+      localStorage.setItem(storeKey("ach", proc.id), JSON.stringify(merged))
     } catch {}
     const keys = added.map((a) => a.key)
     const t = setTimeout(
@@ -261,7 +265,7 @@ export function GameClient({ proc }: { proc: Process }) {
     const t = setTimeout(() => {
       setMode("end")
       try {
-        const k = `bueroquest:best:${proc.id}`
+        const k = storeKey("best", proc.id)
         const old = Number(localStorage.getItem(k) ?? "0")
         if (finished.outcome === "success" && stateRef.current.score > old) {
           localStorage.setItem(k, String(stateRef.current.score))

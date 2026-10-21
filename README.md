@@ -1,4 +1,4 @@
-# FZ Prozess Quest
+# devadventure
 
 A 90s-style top-down browser game that teaches the Modulvorschlag process
 (PM → BMZ → PEA → Teamleitung). Served at the site root.
@@ -109,7 +109,7 @@ Arrows / WASD move · E, Enter or click an NPC to talk · 1–3 or click to answ
 - `achievements[]`: declarative `rule`s (all given fields must hold): `stat`+`gte`
   (`talks`, `steps`, `hints`, `facts`, `eventsGood`, `eventsBad`, `events`, `wrongVisits`),
   `statAtMost`, `finished`, `roundsAtMost/AtLeast`, `scoreAtLeast`, `flag`, `roomsVisited`.
-  Unlocks are announced in-game and stored in `localStorage` (`bueroquest:ach:<process id>`).
+  Unlocks are announced in-game and stored in `localStorage` (`devadventure:ach:<process id>`).
 
 ## Ambient colleagues
 
