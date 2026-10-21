@@ -179,7 +179,7 @@ export function Editor({
             {games.map((g) => (
               <option key={g.id} value={g.id}>
                 {g.title} ({g.id}
-                {g.source === "bundled" ? ", fest" : ", gespeichert"})
+                {g.source === "bundled" ? ", Vorlage" : ", gespeichert"})
               </option>
             ))}
           </select>
@@ -188,8 +188,8 @@ export function Editor({
           Speichern als (game=…)
           <span className={styles.barHelp}>
             Name, unter dem das Spiel gespeichert wird; Aufruf dann mit ?game=
-            Name. Nur Buchstaben, Ziffern, - und _. Eingebaute Spiele lassen
-            sich nicht überschreiben.
+            Name. Nur Buchstaben, Ziffern, - und _. Vorlagen lassen sich nicht
+            überschreiben.
           </span>
           <input
             className={styles.input}
