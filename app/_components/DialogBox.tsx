@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import type { DialogView } from "../_game/engine"
-import type { NpcLook } from "../_game/schema"
+import type { NpcLook, UiTexts } from "../_game/schema"
 import styles from "../game.module.css"
 import { Portrait } from "./Portrait"
 
@@ -12,9 +12,17 @@ interface Props {
   onChoose: (index: number) => void
   onAdvance: () => void
   onBlip: (i: number) => void
+  ui: Pick<UiTexts, "next" | "learnLabel">
 }
 
-export function DialogBox({ dialog, npc, onChoose, onAdvance, onBlip }: Props) {
+export function DialogBox({
+  dialog,
+  npc,
+  onChoose,
+  onAdvance,
+  onBlip,
+  ui,
+}: Props) {
   const key = `${dialog.npcId}|${dialog.nodeId}|${dialog.phase}|${dialog.pickedIndex}|${dialog.text}`
   return (
     <DialogInner
@@ -24,11 +32,12 @@ export function DialogBox({ dialog, npc, onChoose, onAdvance, onBlip }: Props) {
       onChoose={onChoose}
       onAdvance={onAdvance}
       onBlip={onBlip}
+      ui={ui}
     />
   )
 }
 
-function DialogInner({ dialog, npc, onChoose, onAdvance, onBlip }: Props) {
+function DialogInner({ dialog, npc, onChoose, onAdvance, onBlip, ui }: Props) {
   const [shown, setShown] = useState(0)
   const [hi, setHi] = useState(0)
   const full = shown >= dialog.text.length
@@ -84,7 +93,7 @@ function DialogInner({ dialog, npc, onChoose, onAdvance, onBlip }: Props) {
       <p className={styles.dialogText}>{dialog.text.slice(0, shown)}</p>
       {full && dialog.phase === "reply" && dialog.learn && (
         <div className={styles.learn}>
-          <b>Warum so?</b> {dialog.learn}
+          <b>{ui.learnLabel}</b> {dialog.learn}
         </div>
       )}
       {full && dialog.phase === "ask" && (
@@ -118,7 +127,7 @@ function DialogInner({ dialog, npc, onChoose, onAdvance, onBlip }: Props) {
             onAdvance()
           }}
         >
-          Weiter ▶
+          {ui.next}
         </button>
       )}
     </div>

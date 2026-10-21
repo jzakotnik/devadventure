@@ -62,6 +62,12 @@ export interface DialogNode {
 }
 
 export interface Effect {
+  /**
+   * Condition (same fields as an achievement rule, all must hold). Only
+   * meaningful when a result maps to a list of effects: the first effect
+   * whose `when` holds (or has none) is applied.
+   */
+  when?: AchievementRule
   /** Next stage id. Omit to stay in the current stage. */
   next?: string
   costsRound?: boolean
@@ -85,7 +91,8 @@ export interface Stage {
   dialog: string
   /** Used instead of `dialog` when the stage is visited again. */
   repeatDialog?: string
-  on: Record<string, Effect>
+  /** RESULT -> effect, or an ordered list of conditional effects. */
+  on: Record<string, Effect | Effect[]>
 }
 
 export interface PipelineStep {
@@ -101,6 +108,12 @@ export interface Process {
   roundLimit: number
   firstStage: string
   pipeline: PipelineStep[]
+  /** Optional; missing fields fall back to DEFAULT_SCORING. */
+  scoring?: Partial<Scoring>
+  /** Optional; missing fields fall back to DEFAULT_UI. */
+  ui?: Partial<UiTexts>
+  /** Extra stat lines in the end screen (score and rounds are always shown). */
+  debrief?: { stats: Array<{ label: string; stat: string }> }
   texts: {
     wrongNpc: string
     hintPrefix: string
@@ -159,6 +172,7 @@ export interface AchievementRule {
   roundsAtMost?: number
   roundsAtLeast?: number
   scoreAtLeast?: number
+  scoreAtMost?: number
   flag?: string
   roomsVisited?: number
 }
@@ -189,4 +203,75 @@ export interface Ambient {
   bubbleSec: number
   lines: string[]
   wanderers: Wanderer[]
+}
+
+/* ------------------------------------------------------- scoring and texts */
+
+export interface Scoring {
+  /** Points deducted when asking a hint NPC. */
+  hintCost: number
+  /** Points for the first fact per stage. */
+  factBonus: number
+  /** First entry with rounds <= roundsAtMost wins; otherwise 1 star. */
+  stars: Array<{ roundsAtMost: number; stars: number }>
+}
+
+export const DEFAULT_SCORING: Scoring = {
+  hintCost: 2,
+  factBonus: 3,
+  stars: [
+    { roundsAtMost: 0, stars: 3 },
+    { roundsAtMost: 1, stars: 2 },
+  ],
+}
+
+/** UI strings. `{n}` placeholders are replaced by the engine. */
+export interface UiTexts {
+  objective: string
+  score: string
+  rounds: string
+  achievements: string
+  /** Label of the HUD slot for the process document; empty string hides it. */
+  document: string
+  muteOn: string
+  muteOff: string
+  next: string
+  start: string
+  restart: string
+  bestScore: string
+  hintHelp: string
+  titleKeys: string
+  factBonus: string
+  learnLabel: string
+  unlockedHead: string
+  decisions: string
+  runAchievements: string
+  allAchievements: string
+  back: string
+  loadError: string
+}
+
+export const DEFAULT_UI: UiTexts = {
+  objective: "ZIEL",
+  score: "PUNKTE",
+  rounds: "RUNDEN",
+  achievements: "ERFOLGE",
+  document: "DOKUMENT",
+  muteOn: "TON AN",
+  muteOff: "TON AUS",
+  next: "Weiter ▶",
+  start: "▶ ENTER = START",
+  restart: "▶ NOCHMAL SPIELEN",
+  bestScore: "BESTER SCORE: {n}",
+  hintHelp: "PFEILTASTEN / WASD: LAUFEN · E: SPRECHEN · MAUSKLICK: HINLAUFEN",
+  titleKeys:
+    "Pfeiltasten / WASD laufen · E oder Klick sprechen · 1–3 antworten · M Ton",
+  factBonus: " (+{n} Punkte)",
+  learnLabel: "Warum so?",
+  unlockedHead: "ERFOLG FREIGESCHALTET",
+  decisions: "Deine Entscheidungen",
+  runAchievements: "Erfolge in dieser Runde",
+  allAchievements: "ALLE ERFOLGE",
+  back: "ZURÜCK [ESC]",
+  loadError: "Das Spiel konnte nicht geladen werden",
 }

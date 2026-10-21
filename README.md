@@ -27,6 +27,23 @@ npm run build && npm start   # production, static page
 - `_game/audio.ts` – WebAudio chiptune sfx + music.
 - `_components/` – React overlays (HUD, dialog, debrief). `game.module.css` – styles.
 
+## Several games
+
+Every JSON file in `app/_content/` is a playable game: `/` loads `modulvorschlag`,
+`/?game=urlaubsantrag` loads `urlaubsantrag.json`. The file is validated on load; an invalid
+or missing file shows an error page listing the problems. To make a new process, copy a file,
+then change actors (`npcs`), rooms, `stages`, `dialogs`, `texts` and `pipeline`.
+
+Optional blocks (all fields have defaults, see `schema.ts`):
+
+- `scoring`: `hintCost`, `factBonus`, `stars: [{roundsAtMost, stars}]`.
+- `ui`: HUD/button strings. Set `ui.document` to `""` to hide the document slot, or name it
+  (`ANTRAG`, `BESTELLUNG`, ...).
+- `debrief.stats`: extra lines on the end screen, `[{label, stat}]` (stat names as for achievements).
+- Conditional results: a stage's `on.RESULT` may be a list of effects. The first one whose
+  `when` holds is used (`when` takes the achievement rule fields: `flag`, `scoreAtLeast`,
+  `scoreAtMost`, `roundsAtLeast`, `stat`+`gte`, ...). Flags are set by `choices[].flag`.
+
 ## Controls
 
 Arrows / WASD move · E, Enter or click an NPC to talk · 1–3 or click to answer · M mute.

@@ -1,8 +1,14 @@
 "use client"
 
 import type { GameState } from "../_game/engine"
+import { statsView, uiOf } from "../_game/engine"
 import type { Process } from "../_game/schema"
 import styles from "../game.module.css"
+
+const DEFAULT_DEBRIEF_STATS = [
+  { label: "FALSCHE WEGE", stat: "wrongVisits" },
+  { label: "TIPPS", stat: "hints" },
+]
 
 export function Debrief({
   proc,
@@ -17,6 +23,9 @@ export function Debrief({
   onRestart: () => void
   onShowAchievements: () => void
 }) {
+  const ui = uiOf(proc)
+  const view = statsView(state)
+  const stats = proc.debrief?.stats ?? DEFAULT_DEBRIEF_STATS
   const f = state.finished!
   const ok = f.outcome === "success"
   return (
@@ -37,25 +46,24 @@ export function Debrief({
       </div>
       <ul className={styles.statline}>
         <li>
-          PUNKTE <b>{state.score}</b>
+          {ui.score} <b>{state.score}</b>
           {best !== null && ok ? ` (BEST ${best})` : ""}
         </li>
         <li>
-          RUNDEN{" "}
+          {ui.rounds}{" "}
           <b>
             {state.round}/{proc.roundLimit}
           </b>
         </li>
-        <li>
-          FALSCHE WEGE <b>{state.wrongVisits}</b>
-        </li>
-        <li>
-          TIPPS <b>{state.hintsUsed}</b>
-        </li>
+        {stats.map((x) => (
+          <li key={x.label}>
+            {x.label} <b>{view[x.stat] ?? 0}</b>
+          </li>
+        ))}
       </ul>
       {state.unlocked.length > 0 && (
         <>
-          <h3>Erfolge in dieser Runde</h3>
+          <h3>{ui.runAchievements}</h3>
           <ul className={styles.achRow}>
             {state.unlocked.map((id) => {
               const a = proc.achievements.find((x) => x.id === id)!
@@ -68,7 +76,7 @@ export function Debrief({
           </ul>
         </>
       )}
-      <h3>Deine Entscheidungen</h3>
+      <h3>{ui.decisions}</h3>
       <ol className={styles.log}>
         {state.log.map((l, i) => (
           <li key={i} className={l.score >= 0 ? styles.logGood : styles.logBad}>
@@ -87,10 +95,10 @@ export function Debrief({
         ))}
       </ol>
       <button className={styles.ghostBtn} onClick={onShowAchievements}>
-        🏆 ALLE ERFOLGE
+        🏆 {ui.allAchievements}
       </button>
       <button className={styles.startBtn} onClick={onRestart}>
-        ▶ NOCHMAL SPIELEN
+        {ui.restart}
       </button>
     </div>
   )

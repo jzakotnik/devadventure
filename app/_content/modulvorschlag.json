@@ -40,7 +40,7 @@
   ],
   "texts": {
     "wrongNpc": "„Damit bin ich gerade nicht befasst. Dein nächster Halt: {room}.“",
-    "hintPrefix": "Tipp (−2 Punkte): ",
+    "hintPrefix": "Tipp (−{n} Punkte): ",
     "factPrefix": "Wusstest du? ",
     "successTitle": "FREIGABE ERTEILT!",
     "successText": "Das Dokument ist final freigegeben. Der Prozess ist durchlaufen.",

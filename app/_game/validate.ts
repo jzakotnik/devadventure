@@ -1,4 +1,4 @@
-import type { Process } from "./schema"
+import type { AchievementRule, Process } from "./schema"
 import { buildMap } from "./map"
 
 /** Returns a list of human-readable problems; empty when the process is valid. */
@@ -28,6 +28,7 @@ export function validateProcess(proc: Process): string[] {
   if (!stageIds.has(proc.firstStage))
     errors.push(`unknown firstStage ${proc.firstStage}`)
 
+  const conds: Array<[string, AchievementRule]> = []
   for (const s of proc.stages) {
     if (!roomIds.has(s.room))
       errors.push(`stage ${s.id}: unknown room ${s.room}`)
@@ -36,9 +37,15 @@ export function validateProcess(proc: Process): string[] {
       if (d && !proc.dialogs[d])
         errors.push(`stage ${s.id}: unknown dialog ${d}`)
     }
-    for (const [result, eff] of Object.entries(s.on)) {
-      if (eff.next && !stageIds.has(eff.next))
-        errors.push(`stage ${s.id}.on.${result}: unknown stage ${eff.next}`)
+    for (const [result, entry] of Object.entries(s.on)) {
+      const effs = Array.isArray(entry) ? entry : [entry]
+      if (Array.isArray(entry) && !entry.length)
+        errors.push(`stage ${s.id}.on.${result}: empty effect list`)
+      effs.forEach((eff, i) => {
+        if (eff.next && !stageIds.has(eff.next))
+          errors.push(`stage ${s.id}.on.${result}: unknown stage ${eff.next}`)
+        if (eff.when) conds.push([`stage ${s.id}.on.${result}[${i}]`, eff.when])
+      })
     }
   }
 
@@ -51,6 +58,30 @@ export function validateProcess(proc: Process): string[] {
       if (c.goto && !proc.dialogs[c.goto])
         errors.push(`dialog ${id}: unknown goto ${c.goto}`)
     }
+  }
+
+  // every result a stage's dialogs can emit must be handled by that stage
+  for (const s of proc.stages) {
+    const seen = new Set<string>()
+    const walk = (id: string | undefined) => {
+      if (!id || seen.has(id) || !proc.dialogs[id]) return
+      seen.add(id)
+      const node = proc.dialogs[id]
+      if (node.result && !s.on[node.result])
+        errors.push(
+          `stage ${s.id}: dialog ${id} result ${node.result} not in "on"`
+        )
+      walk(node.next)
+      for (const c of node.choices ?? []) {
+        if (c.result && !s.on[c.result])
+          errors.push(
+            `stage ${s.id}: dialog ${id} result ${c.result} not in "on"`
+          )
+        walk(c.goto)
+      }
+    }
+    walk(s.dialog)
+    walk(s.repeatDialog)
   }
 
   for (const step of proc.pipeline) {
@@ -67,6 +98,8 @@ export function validateProcess(proc: Process): string[] {
     errors.push("ambient: no greeting lines")
 
   const flags = new Set<string>()
+  for (const node of Object.values(proc.dialogs))
+    for (const c of node.choices ?? []) if (c.flag) flags.add(c.flag)
   for (const ev of proc.events) {
     for (const c of ev.choices) if (c.flag) flags.add(c.flag)
     if (ev.choices.length < 1 || ev.choices.length > 4)
@@ -75,6 +108,9 @@ export function validateProcess(proc: Process): string[] {
       if (!stageIds.has(sid))
         errors.push(`event ${ev.id}: unknown stage ${sid}`)
   }
+  for (const [where, rule] of conds)
+    if (rule.flag && !flags.has(rule.flag))
+      errors.push(`${where}: flag ${rule.flag} is never set`)
   const { minSteps, maxSteps } = proc.eventSettings
   if (minSteps > maxSteps) errors.push("eventSettings: minSteps > maxSteps")
 
