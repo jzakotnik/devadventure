@@ -118,6 +118,7 @@
   color: #8ab4ff;
 }
 .fields {
+  align-items: end;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 8px 12px;
@@ -371,4 +372,52 @@ textarea.input {
 }
 .flowEffect small {
   color: #889;
+}
+
+/* ---------------------------------------------------------------- help */
+.help {
+  color: #8d93b8;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.key {
+  margin-left: 6px;
+  color: #667;
+  font: 11px ui-monospace, monospace;
+}
+.groupHelp {
+  margin: 0 0 4px;
+  padding: 6px 10px;
+  color: #aab2d8;
+  font-size: 13px;
+  line-height: 1.45;
+  background: #0c0c1c;
+  border-left: 3px solid #3a4285;
+  border-radius: 0 4px 4px 0;
+}
+.tabHelp {
+  margin: 12px 0;
+  padding: 10px 14px;
+  background: #121836;
+  border: 1px solid #2a3166;
+  border-radius: 8px;
+  color: #c4cbf0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.tabHelp b {
+  display: block;
+  margin-bottom: 2px;
+  color: #fff;
+}
+.barHelp {
+  color: #778;
+  font-size: 11px;
+  font-weight: 400;
+}
+.sectionHelp {
+  margin: 0 0 8px;
+  color: #aab2d8;
+  font-size: 13px;
+  font-weight: 400;
 }
