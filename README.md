@@ -63,6 +63,21 @@ Optional blocks (all fields have defaults, see `schema.ts`):
   `when` holds is used (`when` takes the achievement rule fields: `flag`, `scoreAtLeast`,
   `scoreAtMost`, `roundsAtLeast`, `stat`+`gte`, ...). Flags are set by `choices[].flag`.
 
+## SEO, favicons and link previews
+
+- Set `NEXT_PUBLIC_SITE_URL` (e.g. `https://quest.example.com`) **at build time**; it is the base
+  for absolute URLs in canonical links, Open Graph tags, the sitemap and robots.txt. Without it,
+  `VERCEL_PROJECT_PRODUCTION_URL` or `http://localhost:3000` is used.
+- Every game has its own title, description (subtitle + first intro paragraph), canonical URL,
+  Open Graph / Twitter card and schema.org `VideoGame` data. The preview image is generated at
+  `/og?game=<id>` (generic: `/og`).
+- Games built in `app/_content/` are indexed and listed in `/sitemap.xml`; games saved in the
+  editor are shareable but `noindex`. `/editor` and `/api/` are disallowed in `robots.txt`.
+  Unknown games return a real 404.
+- Icons: `app/favicon.ico`, `app/icon.svg`, `app/apple-icon.png`, `public/icon-192.png` and
+  `public/icon-512.png` (web app manifest at `/manifest.webmanifest`). Site name and
+  description live in `app/_game/site.ts`.
+
 ## Controls
 
 Arrows / WASD move · E, Enter or click an NPC to talk · 1–3 or click to answer · M mute.
