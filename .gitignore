@@ -35,5 +35,6 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# games saved by the editor
-/data/
+# games saved by the editor (the folder itself is tracked via .gitkeep)
+/data/games/*
+!/data/games/.gitkeep

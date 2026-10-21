@@ -48,7 +48,8 @@ results as arrows (dashed = costs a round, yellow = conditional), rework loops b
 stage they branch from. Click a stage to read its dialog as a script (choice → result →
 what happens next).
 
-Saved games are written to `data/games/<id>.json` (git-ignored; move a file to
+Saved games are written to `data/games/<id>.json` (the folder is checked in with a `.gitkeep`,
+so it exists after a fresh checkout; the saved files themselves are git-ignored; move a file to
 `app/_content/` to ship it with the app). Built-in games are read-only, so use a new id.
 Saving is allowed in dev; in production set `GAME_EDITOR=1` (the endpoint has no
 authentication, so only enable it where that is acceptable). Needs a writable filesystem.
