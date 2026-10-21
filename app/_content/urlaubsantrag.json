@@ -655,25 +655,25 @@
           "skin": "#e8b890"
         }
       },
-      "text": "Hey! Kurze Frage: Wie weit ist der Modulvorschlag? Mein Kunde fragt schon nach.",
+      "text": "Hey! Kurze Frage: Du bist im August weg – wer übernimmt mein Anliegen, solange du fehlst?",
       "choices": [
         {
-          "text": "Kurz und ehrlich: Stand, nächster Schritt, geschätzter Termin.",
+          "text": "Kurz und klar: Übergabe-Notiz mit Ansprechperson und Erreichbarkeit.",
           "reply": "„Perfekt, genau das brauche ich!“",
           "score": 5,
-          "learn": "Proaktive, ehrliche Statusinfos verhindern Rückfragen und Eskalationen."
+          "learn": "Eine kurze Übergabe-Notiz verhindert Rückfragen, während du weg bist."
         },
         {
-          "text": "Das dauert noch, frag später nochmal.",
+          "text": "Das klärt sich schon, frag später nochmal.",
           "reply": "Tom zuckt mit den Schultern.",
           "score": -2,
-          "learn": "Vertrösten ohne Information erzeugt Nachfragen."
+          "learn": "Vertrösten ohne Information erzeugt Rückfragen – auch im Urlaub."
         },
         {
-          "text": "Ich zeige dir das Dokument.",
+          "text": "Ich zeige dir meinen Antrag.",
           "reply": "„Okay, aber ich verstehe nicht alles…“",
           "score": 1,
-          "learn": "Ein Dokument ersetzt keine Einordnung."
+          "learn": "Der Antrag ersetzt keine Übergabe: Er sagt nicht, wer was übernimmt."
         }
       ]
     },
@@ -713,8 +713,8 @@
       "title": "Versionschaos",
       "icon": "📄",
       "speaker": {
-        "name": "Lena Fischer",
-        "title": "Projektassistenz",
+        "name": "Anna Berger",
+        "title": "Kollegin",
         "look": {
           "shirt": "#e8a838",
           "pants": "#3a3f5c",
@@ -723,20 +723,20 @@
           "accessory": "bow"
         }
       },
-      "text": "Lena ruft: „Warte! Im Anhang war noch eine ältere Version. Bist du sicher, dass du die aktuelle dabeihast?“",
+      "text": "Anna ruft: „Warte! Im Anhang war noch das alte Antragsformular. Bist du sicher, dass du das aktuelle dabeihast?“",
       "choices": [
         {
-          "text": "Versionsnummer kurz prüfen – ja, alles aktuell.",
+          "text": "Formularversion kurz prüfen – ja, alles aktuell.",
           "reply": "„Super, dann kann nichts schiefgehen.“",
           "score": 5,
-          "learn": "Version prüfen vor dem Versand: einfacher Check, große Wirkung."
+          "learn": "Formularversion vor dem Einreichen prüfen: einfacher Check, große Wirkung."
         },
         {
           "text": "Wird schon passen.",
           "reply": "Lena schaut skeptisch. Später fällt es auf…",
           "score": -5,
           "round": 1,
-          "learn": "Veraltete Versionen kosten eine komplette Prüfrunde."
+          "learn": "Ein veraltetes Formular kostet eine komplette Prüfrunde."
         }
       ],
       "requiresDoc": true
@@ -755,10 +755,10 @@
           "skin": "#f0c8a0"
         }
       },
-      "text": "Hallo! Ich bin neu. Kannst du mir kurz erklären, wie ein Modulvorschlag durch das Haus kommt?",
+      "text": "Hallo! Ich bin neu. Kannst du mir kurz erklären, wie man hier Urlaub beantragt?",
       "choices": [
         {
-          "text": "Klar: BMZ prüft, Partner gibt Feedback, Teamleitung genehmigt.",
+          "text": "Klar: Teamleitung unterschreibt, Personal prüft, die Abrechnung vermerkt es.",
           "reply": "„Danke, das war super verständlich!“",
           "score": 4,
           "learn": "Wissen weitergeben festigt den Prozess für alle."
@@ -811,10 +811,10 @@
           "accessory": "glasses"
         }
       },
-      "text": "Du willst das Dokument an einen externen Kontakt schicken. Es enthält vertrauliche Finanzzahlen.",
+      "text": "Du willst deinen Antrag mit persönlichen Angaben per Mail an die Personalabteilung schicken.",
       "choices": [
         {
-          "text": "Über den gesicherten Austausch senden.",
+          "text": "Über das gesicherte Mitarbeiterportal senden.",
           "reply": "Verschlüsselt und nachvollziehbar – so soll es sein.",
           "score": 5,
           "learn": "Vertrauliche Unterlagen nur über gesicherte Wege."
@@ -873,7 +873,7 @@
     {
       "id": "curious",
       "title": "Wissbegierig",
-      "description": "Lass dir vom Archivar drei Prozess-Fakten erzählen.",
+      "description": "Lass dir von Herrn Bauer drei Fakten erzählen.",
       "icon": "📚",
       "rule": {
         "stat": "facts",
@@ -902,7 +902,7 @@
     {
       "id": "clean",
       "title": "Makellos",
-      "description": "Erhalte die Freigabe ohne eine einzige Überarbeitungsrunde.",
+      "description": "Erhalte die Genehmigung ohne eine einzige Überarbeitungsrunde.",
       "icon": "💎",
       "rule": {
         "finished": "success",
@@ -912,7 +912,7 @@
     {
       "id": "alone",
       "title": "Ohne Hilfe",
-      "description": "Erhalte die Freigabe, ohne einen Tipp zu kaufen.",
+      "description": "Erhalte die Genehmigung, ohne einen Tipp zu kaufen.",
       "icon": "🧠",
       "rule": {
         "finished": "success",
@@ -924,7 +924,7 @@
     {
       "id": "direct",
       "title": "Zielstrebig",
-      "description": "Erhalte die Freigabe, ohne je zur falschen Person zu gehen.",
+      "description": "Erhalte die Genehmigung, ohne je zur falschen Person zu gehen.",
       "icon": "🎯",
       "rule": {
         "finished": "success",
@@ -936,17 +936,17 @@
     {
       "id": "highscore",
       "title": "Punktejäger:in",
-      "description": "Beende den Prozess mit mindestens 70 Punkten.",
+      "description": "Beende den Prozess mit mindestens 60 Punkten.",
       "icon": "🏆",
       "rule": {
         "finished": "success",
-        "scoreAtLeast": 70
+        "scoreAtLeast": 60
       }
     },
     {
       "id": "grit",
       "title": "Durchhalter:in",
-      "description": "Erhalte die Freigabe trotz mindestens zwei Überarbeitungsrunden.",
+      "description": "Erhalte die Genehmigung trotz mindestens zwei Überarbeitungsrunden.",
       "icon": "💪",
       "rule": {
         "finished": "success",

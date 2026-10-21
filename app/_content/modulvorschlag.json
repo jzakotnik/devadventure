@@ -3,9 +3,9 @@
   "title": "MODULVORSCHLAG QUEST",
   "subtitle": "Vom Modulvorschlag zur Freigabe",
   "intro": [
-    "Willkommen im Team! Du bist ab heute Projektmanager:in.",
-    "Ein neuer Modulvorschlag liegt bereit. Bring ihn durch das Haus: BMZ, Partner (PEA) und Teamleitung müssen zustimmen.",
-    "Sprich mit den Kolleg:innen, wähle klug – jede Überarbeitungsrunde kostet Zeit und Nerven."
+    "Willkommen im Team! Du bist ab heute Trainee im Projektmanagement.",
+    "Deine Projektmanagerin Lena hat einen neuen Modulvorschlag fertig. Bring ihn durch das Haus: BMZ, Partner (PEA) und Teamleitung müssen zustimmen.",
+    "Du läufst zwischen Lena und den Prüfstellen hin und her. Wähle klug – jede Überarbeitungsrunde kostet Zeit und Nerven."
   ],
   "roundLimit": 3,
   "firstStage": "intake",
@@ -144,7 +144,7 @@
   "npcs": {
     "lena": {
       "name": "Lena Fischer",
-      "title": "Projektassistenz",
+      "title": "Projektmanagerin",
       "room": "pm",
       "at": [
         5,
@@ -533,7 +533,7 @@
       ]
     },
     "pea_intro": {
-      "text": "Ah, der Projektmanager! Das BMZ hat zugestimmt, habe ich gehört. Was bedeutet das für uns als Partner?",
+      "text": "Ah, Besuch vom PM-Büro! Das BMZ hat zugestimmt, habe ich gehört. Was bedeutet das für uns als Partner?",
       "choices": [
         {
           "text": "Ich fasse zusammen: Änderungen, Termine und Verantwortliche.",
@@ -815,7 +815,7 @@
       "icon": "📄",
       "speaker": {
         "name": "Lena Fischer",
-        "title": "Projektassistenz",
+        "title": "Projektmanagerin",
         "look": {
           "shirt": "#e8a838",
           "pants": "#3a3f5c",
@@ -856,7 +856,7 @@
           "skin": "#f0c8a0"
         }
       },
-      "text": "Hallo! Ich bin neu. Kannst du mir kurz erklären, wie ein Modulvorschlag durch das Haus kommt?",
+      "text": "Hallo! Ich bin auch neu hier. Weißt du, wie ein Modulvorschlag durch das Haus kommt?",
       "choices": [
         {
           "text": "Klar: BMZ prüft, Partner gibt Feedback, Teamleitung genehmigt.",
