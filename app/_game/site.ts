@@ -4,6 +4,9 @@ export const SITE_TAGLINE = "Prozesse spielerisch lernen"
 export const SITE_DESCRIPTION =
   "Prozess Quest ist ein Retro-Büro-Adventure im Browser: Laufe durch das Gebäude, sprich mit Kolleginnen und Kollegen und lerne dabei Geschäftsprozesse kennen. Spiele fertige Prozesse oder gestalte mit dem Editor dein eigenes Spiel."
 
+/** "Buy me a coffee" link shown on the start screen. */
+export const COFFEE_URL = "https://ko-fi.com/jzakotnik"
+
 /**
  * Public base URL for absolute links in metadata. Set NEXT_PUBLIC_SITE_URL
  * (e.g. https://quest.example.com) in production; Vercel's production URL is

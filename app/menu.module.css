@@ -112,3 +112,18 @@
   font-size: 12px;
   color: #9aa0d8;
 }
+.made {
+  margin: 28px 0 0;
+  font-size: 14px;
+  color: #c4c9ee;
+}
+.heart {
+  color: #ff5a6e;
+}
+.coffee {
+  color: #ffd866;
+  text-underline-offset: 3px;
+}
+.coffee:hover {
+  color: #fff;
+}

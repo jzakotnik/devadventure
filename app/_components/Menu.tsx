@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { COFFEE_URL } from "../_game/site"
 import styles from "../menu.module.css"
 
 interface GameInfo {
@@ -102,6 +103,21 @@ export function Menu({
             </button>
           </>
         )}
+        <p className={styles.made}>
+          Made with{" "}
+          <span className={styles.heart} role="img" aria-label="Liebe">
+            ♥
+          </span>
+          {" · "}
+          <a
+            className={styles.coffee}
+            href={COFFEE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ☕ buy me a coffee if you like it
+          </a>
+        </p>
         <p className={styles.hint}>
           {step === "main"
             ? "ENTER / 1 = SPIELEN" + (canEdit ? " · 2 = GESTALTEN" : "")
