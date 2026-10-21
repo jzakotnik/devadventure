@@ -127,6 +127,9 @@
   align-items: flex-end;
   gap: 4px;
 }
+.fieldRowWide {
+  grid-column: 1 / -1;
+}
 .fieldRow > label {
   flex: 1;
 }
@@ -227,4 +230,10 @@
 }
 .group summary > span:first-of-type {
   flex: 1;
+}
+textarea.input {
+  min-height: 5.5em;
+  font-size: 15px;
+  line-height: 1.5;
+  resize: vertical;
 }
