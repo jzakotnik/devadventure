@@ -3,8 +3,8 @@
   "title": "RECHNUNGS QUEST",
   "subtitle": "Von der Eingangsrechnung zur Zahlung",
   "intro": [
-    "Du arbeitest in der Kreditorenbuchhaltung. Heute ist eine Lieferantenrechnung über 12.800 € eingegangen.",
-    "Bringe die Rechnung durch das Haus: Posteingang, Fachabteilung, Einkauf, Teamleitung und Buchhaltung – erst nach allen Prüfungen darf gezahlt werden.",
+    "Willkommen in der Kreditorenbuchhaltung! Du bist ab heute Trainee. Heute ist eine Lieferantenrechnung über 12.800 € eingegangen.",
+    "Du läufst zwischen den Abteilungen hin und her und bringst die Rechnung durch das Haus: Posteingang, Fachabteilung, Einkauf, Teamleitung und Buchhaltung – erst nach allen Prüfungen darf gezahlt werden.",
     "Prüfe genau, nutze Skonto und lass dich nicht zur Eile drängen. Jede Korrekturschleife kostet eine Runde."
   ],
   "roundLimit": 3,
@@ -489,7 +489,7 @@
           "result": "UNKLAR"
         },
         {
-          "text": "Ich gebe sie mir selbst frei, ich habe ja Zeichnungsrecht.",
+          "text": "Ich gebe sie mir selbst frei – ich habe sie ja schließlich erfasst.",
           "reply": "„Funktionstrennung! Das geht nicht.“",
           "learn": "Wer die Rechnung erfasst oder bestellt hat, gibt sie nicht selbst frei (Funktionstrennung).",
           "score": -5,

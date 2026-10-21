@@ -3,8 +3,8 @@
   "title": "AUSSCHREIBUNGS QUEST",
   "subtitle": "Von der Bedarfsmeldung zur Bekanntmachung",
   "intro": [
-    "Du bist Einkäufer:in in der Fachabteilung. Dein Haus braucht neue IT-Dienstleistungen im Wert von rund 450.000 € – das muss öffentlich ausgeschrieben werden.",
-    "Bringe die Ausschreibung durch das Haus: Vergabestelle, Rechtsprüfung und Geschäftsführung müssen zustimmen, bevor sie veröffentlicht wird.",
+    "Willkommen im Einkauf! Du bist ab heute Trainee. Sabine Koch aus der Fachabteilung braucht neue IT-Dienstleistungen im Wert von rund 450.000 € – das muss öffentlich ausgeschrieben werden.",
+    "Du läufst zwischen Sabine und den Prüfstellen hin und her und bringst die Ausschreibung durch das Haus: Vergabestelle, Rechtsprüfung und Geschäftsführung müssen zustimmen, bevor sie veröffentlicht wird.",
     "Faire, transparente Verfahren sind Pflicht. Jede Überarbeitungsrunde kostet Zeit – und Fristen laufen nicht zurück."
   ],
   "roundLimit": 3,
@@ -235,7 +235,7 @@
   "npcs": {
     "koch": {
       "name": "Sabine Koch",
-      "title": "Fachabteilung",
+      "title": "Fachabteilung (Bedarfsträgerin)",
       "room": "fach",
       "at": [
         5,
@@ -520,7 +520,7 @@
           "result": "UNKLAR"
         },
         {
-          "text": "Ich habe als Bedarfsträger selbst schon unterschrieben, das reicht doch.",
+          "text": "Die Fachabteilung hat schon unterschrieben – das reicht doch.",
           "reply": "„Vier-Augen-Prinzip: Das reicht nicht.“",
           "learn": "Das Vier-Augen-Prinzip verhindert Interessenkonflikte: Bedarfsträger und Freigebende sind verschiedene Personen.",
           "score": -4,
