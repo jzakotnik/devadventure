@@ -105,6 +105,8 @@ export interface Process {
   title: string
   subtitle: string
   intro: string[]
+  /** Small print on the title screen, one entry per line (sources, fiction, liability). */
+  disclaimer?: string[]
   roundLimit: number
   firstStage: string
   pipeline: PipelineStep[]
@@ -250,6 +252,7 @@ export interface UiTexts {
   back: string
   loadError: string
   menu: string
+  disclaimerLabel: string
 }
 
 export const DEFAULT_UI: UiTexts = {
@@ -276,4 +279,5 @@ export const DEFAULT_UI: UiTexts = {
   back: "ZURÜCK [ESC]",
   loadError: "Das Spiel konnte nicht geladen werden",
   menu: "← MENÜ",
+  disclaimerLabel: "Hinweis",
 }

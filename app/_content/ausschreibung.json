@@ -7,6 +7,11 @@
     "Du läufst zwischen Sabine und den Prüfstellen hin und her und bringst die Ausschreibung durch das Haus: Vergabestelle, Rechtsprüfung und Geschäftsführung müssen zustimmen, bevor sie veröffentlicht wird.",
     "Faire, transparente Verfahren sind Pflicht. Jede Überarbeitungsrunde kostet Zeit – und Fristen laufen nicht zurück."
   ],
+  "disclaimer": [
+    "Der dargestellte Prozess beruht auf Informationen von öffentlich zugänglichen Webseiten.",
+    "Akteure und Handlung sind fiktional; Ähnlichkeiten mit realen Personen oder Organisationen sind zufällig.",
+    "Für die Richtigkeit, Vollständigkeit und Aktualität wird keine Haftung übernommen."
+  ],
   "roundLimit": 3,
   "map": {
     "layout": [
