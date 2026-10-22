@@ -1,7 +1,7 @@
 # devadventure
 
 **Learn business processes by walking through them.**
-devadventure is a 90s-style top-down browser game in which you carry a document through an
+devadventure is a fun 90s-style top-down browser game in which you carry a document through an
 office building – from desk to desk, from approval to approval – and learn why each step of a
 process exists. You play a trainee who runs between colleagues, answers their questions, and
 finds out what happens when a step is skipped.
