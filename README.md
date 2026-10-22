@@ -334,10 +334,30 @@ They never block the player and have no dialog.
 | **Dialoge** | The conversations |
 | **Ereignisse & Erfolge** | Random incidents and badges |
 | **Spielwerte** | Points, stars, interface texts, end-screen statistics |
-| **JSON** | The whole game as text, for copying or advanced edits |
+| **JSON** | The whole game as text: edit it, **download** it, **upload** a file (checked on the spot), or copy a ready-made **AI prompt** (see below) |
 
 Reference fields (room, colleague, stage, dialog) are dropdowns, problems are listed live, and
 saving is only possible when the game is valid.
+
+**Download, upload and AI generation**
+
+The JSON tab can export and import a whole game, which also makes it easy to let an AI
+assistant write one:
+
+1. Optionally type the process you want (for example "Reisekostenabrechnung") into the field next
+   to **✨ KI-Prompt kopieren** and click the button. The clipboard now holds the format rules, the
+   constraints the validator enforces, and the currently loaded game as a working example.
+2. Paste it into an AI assistant. It should answer with a single JSON document.
+3. Save the answer as a `.json` file and **⬆ Hochladen** it (or paste it into the text box and click
+   **JSON übernehmen**).
+4. The editor checks it immediately: a syntax error is shown with line and column; a game with
+   rule violations (unknown room, unhandled result, unreachable flag, …) is loaded so you can fix
+   it, and lists every problem. Only a valid game can be saved.
+5. Review the **Übersicht** tab, correct what the AI got wrong, and save under a new id.
+
+**⬇ Herunterladen** exports the current state as `<id>.json`, for backups or to commit a game to
+`app/_content/`. Files up to 1 MB are accepted. AI-written games deserve a read-through: the
+validator proves the game is consistent, not that its content is factually correct.
 
 **Saving**
 

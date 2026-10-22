@@ -593,7 +593,7 @@ export const TAB_HELP: Record<string, { title: string; text: string }> = {
   },
   json: {
     title: "JSON",
-    text: "Das ganze Spiel als Text. Für Fortgeschrittene, zum Kopieren oder wenn ein Feld in den Formularen fehlt. Nach dem Bearbeiten „JSON übernehmen“ klicken.",
+    text: "Das ganze Spiel als Text. Du kannst es herunterladen und wieder hochladen (mit Prüfung), den Text einer KI einfügen oder von Hand bearbeiten. Mit „KI-Prompt kopieren“ bekommst du eine fertige Anleitung samt Beispiel, mit der eine KI ein neues Spiel erzeugen kann. Nach dem Bearbeiten „JSON übernehmen“ klicken.",
   },
 }
 
