@@ -533,6 +533,16 @@ export function GameClient({ proc }: { proc: Process }) {
                 {ui.bestScore.replace("{n}", String(best))}
               </p>
             )}
+            {!!proc.disclaimer?.length && (
+              <aside className={styles.disclaimer}>
+                <b>{ui.disclaimerLabel}</b>
+                <ul>
+                  {proc.disclaimer.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ul>
+              </aside>
+            )}
           </div>
         )}
 

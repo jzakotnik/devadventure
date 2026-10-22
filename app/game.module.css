@@ -488,3 +488,20 @@
   padding: 0.3cqw 0.9cqw;
   background: rgba(30, 33, 80, 0.8);
 }
+.disclaimer {
+  margin-top: 1.4cqw;
+  max-width: 78cqw;
+  font-size: max(1cqw, 9px);
+  line-height: 1.35;
+  font-weight: 400;
+  color: #a2a9dc;
+}
+.disclaimer b {
+  letter-spacing: 0.1cqw;
+  text-transform: uppercase;
+}
+.disclaimer ul {
+  margin: 0.2cqw 0 0;
+  padding: 0;
+  list-style: none;
+}

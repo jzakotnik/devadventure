@@ -7,6 +7,11 @@
     "Du läufst zwischen den Abteilungen hin und her und bringst die Rechnung durch das Haus: Posteingang, Fachabteilung, Einkauf, Teamleitung und Buchhaltung – erst nach allen Prüfungen darf gezahlt werden.",
     "Prüfe genau, nutze Skonto und lass dich nicht zur Eile drängen. Jede Korrekturschleife kostet eine Runde."
   ],
+  "disclaimer": [
+    "Der dargestellte Prozess beruht auf Informationen von öffentlich zugänglichen Webseiten.",
+    "Akteure und Handlung sind fiktional; Ähnlichkeiten mit realen Personen oder Organisationen sind zufällig.",
+    "Für die Richtigkeit, Vollständigkeit und Aktualität wird keine Haftung übernommen."
+  ],
   "roundLimit": 3,
   "map": {
     "layout": [
