@@ -6,8 +6,10 @@ import { ID_PATTERN, readGame } from "../_game/store"
 export async function GET(req: Request) {
   const id = new URL(req.url).searchParams.get("game") ?? ""
   const found = ID_PATTERN.test(id) ? await readGame(id) : null
-  const title = String(found?.proc.title ?? SITE_NAME).toUpperCase()
-  const subtitle = String(found?.proc.subtitle ?? SITE_TAGLINE)
+  const title = String(found?.proc.title ?? SITE_NAME)
+    .slice(0, 60)
+    .toUpperCase()
+  const subtitle = String(found?.proc.subtitle ?? SITE_TAGLINE).slice(0, 120)
   const size =
     title.length > 22
       ? 64

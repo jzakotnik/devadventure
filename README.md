@@ -334,10 +334,31 @@ They never block the player and have no dialog.
 | **Dialoge** | The conversations |
 | **Ereignisse & Erfolge** | Random incidents and badges |
 | **Spielwerte** | Points, stars, interface texts, end-screen statistics |
-| **JSON** | The whole game as text, for copying or advanced edits |
+| **JSON** | The whole game as text: edit it, **download** it, **upload** a file (checked on the spot), or copy a ready-made **AI prompt** (see below) |
 
 Reference fields (room, colleague, stage, dialog) are dropdowns, problems are listed live, and
 saving is only possible when the game is valid.
+
+**Download, upload and AI generation**
+
+The JSON tab can export and import a whole game, which also makes it easy to let an AI
+assistant write one:
+
+1. Optionally type the process you want (for example "Reisekostenabrechnung") into the field next
+   to **✨ KI-Prompt kopieren** and click the button. The clipboard now holds the format rules, the
+   constraints the validator enforces, and the currently loaded game as a working example.
+2. Paste it into an AI assistant. It should answer with a single JSON document.
+3. Save the answer as a `.json` file and **⬆ Hochladen** it (or paste it into the text box and click
+   **JSON übernehmen**).
+4. The editor checks it immediately (see [Upload safety](#upload-safety)). A file with any
+   problem is **rejected** and the current game stays untouched; if it was readable text, it is
+   placed in the JSON box with every problem listed (syntax errors with line and column), so you
+   can correct it there. Only a fully valid game is loaded and can be saved.
+5. Review the **Übersicht** tab, correct what the AI got wrong, and save under a new id.
+
+**⬇ Herunterladen** exports the current state as `<id>.json`, for backups or to commit a game to
+`app/_content/`. Files up to 1 MB are accepted. AI-written games deserve a read-through: the
+validator proves the game is consistent, not that its content is factually correct.
 
 **Saving**
 
@@ -350,6 +371,34 @@ saving is only possible when the game is valid.
 - Saved games can be played and shared, but they are `noindex` and not listed in the sitemap.
 - In production, saving is **off** unless you set `GAME_EDITOR=1`. The editor has **no login**:
   see [Securing the editor](#securing-the-editor).
+
+### Upload safety
+
+Game files are only ever read as JSON text and written back re-serialised; nothing in a file is
+executed or interpreted as markup (all texts are rendered as plain text). On top of that, every
+file is checked in the browser **and again on the server** (so the API cannot be used to get
+around the editor), and rejected on the first failure:
+
+- **File:** extension `.json`, a text/JSON content type, 1 MB at most, not empty; a clear message
+  for files that are really programs, archives, PDFs, images or scripts (checked by their first
+  bytes, not just the name); valid UTF-8 without NUL bytes; exactly one JSON object.
+- **Structure:** at most 12 levels deep, 60,000 entries, 400 list items and 1,500 characters per
+  text; no control characters; the keys `__proto__`, `constructor` and `prototype` are forbidden,
+  and no id may be a name every object already has (`toString`, …).
+- **Schema:** only known fields with the right types and ranges (colours must be `#rrggbb`,
+  ids letters/digits/`-`/`_`, known statistics only). Unknown or misspelled fields are errors,
+  not silently ignored.
+- **Game rules:** all references exist, every result is handled, flags are set somewhere, the map
+  is consistent (the checks described under [Game files](#game-files)).
+- **Server:** `PUT` needs `Content-Type: application/json`, rejects bodies over 1 MB, accepts at
+  most 100 saved games, writes atomically, and refuses to serve a saved file that is not
+  well-formed. The ids of saved games cannot contain path characters.
+- **Headers:** `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, a strict
+  `Referrer-Policy`, a restrictive `Permissions-Policy`, and `Cache-Control: no-store` on `/api/`.
+
+The strict schema lives in [`app/_game/guard.ts`](app/_game/guard.ts); the upload checks in
+`app/_components/editor/upload.ts`. When you extend the game format, add the new field to the
+schema there, otherwise files using it are rejected as "unbekanntes Feld".
 
 ## Configuration
 
@@ -491,7 +540,7 @@ Players never use `/api/` or `/editor`; the game list is read on the server.
 | `/editor`, `/editor?game=<id>` | Editor (open a game as template) |
 | `GET /api/games` | List games `{games: [{id, title, subtitle, source}], canSave}` |
 | `GET /api/games/<id>` | Read a game |
-| `PUT /api/games/<id>` | Validate and save a game (needs `GAME_EDITOR=1` in production; built-in ids are refused) |
+| `PUT /api/games/<id>` | Validate and save a game (needs `GAME_EDITOR=1` in production and `Content-Type: application/json`; built-in ids are refused; see [Upload safety](#upload-safety)) |
 | `/og?game=<id>` | Generated link-preview image |
 | `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest` | SEO and web app files |
 
@@ -513,6 +562,7 @@ Players never use `/api/` or `/editor`; the game list is read on the server.
 app/
 ├─ _game/            engine and tooling (no UI)
 │  ├─ schema.ts      types of a game file + defaults
+│  ├─ guard.ts       strict file checks: limits, forbidden keys, schema (runs before validate)
 │  ├─ validate.ts    consistency checks (references, results, flags, map)
 │  ├─ engine.ts      pure state machine: stages, dialogs, rounds, score, events, achievements
 │  ├─ world.ts       real-time movement, click-to-walk (BFS), wandering colleagues
@@ -523,7 +573,7 @@ app/
 │  ├─ store.ts       list/read/save games on disk (server only)
 │  └─ site.ts        site-wide metadata constants
 ├─ _components/      React: GameClient (HUD, loop), DialogBox, Debrief, Achievements, Menu
-│  └─ editor/        the editor: Editor (shell), Tree (generic form), Overview (graph), help.ts (texts)
+│  └─ editor/        the editor: Editor (shell), Tree (generic form), Overview (graph), help.ts (texts), upload.ts (file checks), aiPrompt.ts
 ├─ _content/         the built-in games (JSON)
 ├─ api/games/        editor API
 ├─ editor/, og/      editor page, preview image route

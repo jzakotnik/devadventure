@@ -4,8 +4,10 @@ import { Component, useEffect, useMemo, useState, type ReactNode } from "react"
 import { DEFAULT_SCORING, DEFAULT_UI, type Process } from "../../_game/schema"
 import { validateProcess } from "../../_game/validate"
 import styles from "../../editor.module.css"
+import { buildAiPrompt } from "./aiPrompt"
 import { TAB_HELP, metaFor } from "./help"
 import { Overview } from "./Overview"
+import { checkUpload } from "./upload"
 import { Tree, removeIn, setIn, type Path } from "./Tree"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -66,6 +68,9 @@ export function Editor({
   const [tab, setTab] = useState("overview")
   const [jsonText, setJsonText] = useState("")
   const [jsonError, setJsonError] = useState("")
+  const [topic, setTopic] = useState("")
+  const [note, setNote] = useState("")
+  const [uploadErrors, setUploadErrors] = useState<string[]>([])
   const [msg, setMsg] = useState<{ ok: boolean; text: string[] } | null>(null)
   const [savedId, setSavedId] = useState<string | null>(null)
 
@@ -124,17 +129,122 @@ export function Editor({
     if (id === "json") {
       setJsonText(JSON.stringify(proc, null, 2))
       setJsonError("")
+      setNote("")
+      setUploadErrors([])
     }
     setTab(id)
   }
 
-  function applyJson() {
+  /** Live check of the text in the JSON tab: syntax, then the game's own rules. */
+  const jsonInfo = useMemo(() => {
+    if (!jsonText.trim()) return null
+    let value: unknown
     try {
-      setProc(JSON.parse(jsonText))
-      setJsonError("")
+      value = JSON.parse(jsonText)
     } catch (e) {
-      setJsonError(e instanceof Error ? e.message : String(e))
+      return {
+        ok: false as const,
+        error: e instanceof Error ? e.message : String(e),
+      }
     }
+    if (!value || typeof value !== "object" || Array.isArray(value))
+      return {
+        ok: false as const,
+        error: "Die Datei muss ein JSON-Objekt sein.",
+      }
+    let problems: string[]
+    try {
+      problems = validateProcess(value as Process)
+    } catch (e) {
+      problems = [
+        `Struktur unvollständig: ${e instanceof Error ? e.message : e}`,
+      ]
+    }
+    return { ok: true as const, value, problems }
+  }, [jsonText])
+
+  const applied =
+    jsonInfo?.ok === true &&
+    JSON.stringify(jsonInfo.value) === JSON.stringify(proc)
+
+  function applyJson() {
+    if (!jsonInfo?.ok) {
+      setJsonError(jsonInfo ? jsonInfo.error : "Kein JSON eingegeben.")
+      return
+    }
+    if (jsonInfo.problems.length) {
+      setJsonError(
+        "Nur ein gültiges Spiel kann übernommen werden. Behebe zuerst die aufgelisteten Probleme."
+      )
+      return
+    }
+    setJsonError("")
+    setProc(jsonInfo.value)
+    setNote("Übernommen. Die anderen Tabs zeigen jetzt diesen Stand.")
+  }
+
+  function formatJson() {
+    if (jsonInfo?.ok) setJsonText(JSON.stringify(jsonInfo.value, null, 2))
+  }
+
+  async function copyText(text: string, done: string) {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      const ta = document.createElement("textarea")
+      ta.value = text
+      document.body.appendChild(ta)
+      ta.select()
+      try {
+        document.execCommand("copy")
+      } finally {
+        document.body.removeChild(ta)
+      }
+    }
+    setNote(done)
+  }
+
+  function downloadJson() {
+    const text = jsonInfo?.ok
+      ? JSON.stringify(jsonInfo.value, null, 2)
+      : JSON.stringify(proc, null, 2)
+    const name =
+      (/^[a-z0-9_-]{1,40}$/i.test(saveId) ? saveId : "spiel") + ".json"
+    const url = URL.createObjectURL(
+      new Blob([text + "\n"], { type: "application/json" })
+    )
+    const a = document.createElement("a")
+    a.href = url
+    a.download = name
+    a.click()
+    URL.revokeObjectURL(url)
+    setNote(`Heruntergeladen als ${name}.`)
+  }
+
+  async function uploadJson(file: File | undefined) {
+    if (!file) return
+    setJsonError("")
+    setNote("")
+    const result = await checkUpload(file)
+    if (!result.ok) {
+      // keep the current game untouched; plain text may be corrected in the box
+      if (result.text !== undefined) setJsonText(result.text)
+      setUploadErrors(result.errors)
+      setNote(
+        `„${file.name}“ wurde abgelehnt. Das aktuelle Spiel bleibt unverändert.`
+      )
+      return
+    }
+    setUploadErrors([])
+    setJsonText(result.text)
+    setProc(result.value)
+    const base = file.name.replace(/\.json$/i, "")
+    if (/^[a-z0-9_-]{1,40}$/i.test(base)) setSaveId(base)
+    setSavedId(null)
+    setMsg(null)
+    setNote(
+      `„${file.name}“ geladen und übernommen – alle Prüfungen bestanden. Du kannst es jetzt speichern.`
+    )
   }
 
   async function save() {
@@ -158,7 +268,11 @@ export function Editor({
   const idValid = /^[a-z0-9_-]{1,40}$/i.test(saveId)
 
   return (
-    <div className={styles.page}>
+    <div
+      className={
+        tab === "json" ? `${styles.page} ${styles.pageWide}` : styles.page
+      }
+    >
       <header className={styles.header}>
         <h1>Spiel-Editor</h1>
         <a href="/" className={styles.link}>
@@ -237,7 +351,7 @@ export function Editor({
           ))}
         </ul>
       )}
-      {errors.length > 0 && (
+      {errors.length > 0 && tab !== "json" && (
         <details className={styles.errBox} open>
           <summary>
             {errors.length} Problem(e) im Spiel – Speichern ist erst möglich,
@@ -322,18 +436,128 @@ export function Editor({
 
       {proc && tab === "json" && (
         <main className={styles.sections}>
+          <div className={styles.jsonBar}>
+            <button className={styles.tool} onClick={downloadJson}>
+              ⬇ Herunterladen
+            </button>
+            <label className={styles.tool}>
+              ⬆ Hochladen
+              <input
+                type="file"
+                accept=".json,application/json"
+                hidden
+                onChange={(e) => {
+                  uploadJson(e.target.files?.[0])
+                  e.target.value = ""
+                }}
+              />
+            </label>
+            <button
+              className={styles.tool}
+              onClick={formatJson}
+              disabled={!jsonInfo?.ok}
+            >
+              Formatieren
+            </button>
+            <button
+              className={styles.tool}
+              onClick={() =>
+                copyText(jsonText, "JSON in die Zwischenablage kopiert.")
+              }
+            >
+              Kopieren
+            </button>
+            <span className={styles.jsonSpacer} />
+            <input
+              className={`${styles.input} ${styles.topic}`}
+              value={topic}
+              placeholder="Prozess für die KI, z. B. Reisekostenabrechnung"
+              onChange={(e) => setTopic(e.target.value)}
+              aria-label="Prozess, den die KI abbilden soll"
+            />
+            <button
+              className={styles.tool}
+              title="Kopiert Regeln, Thema und das aktuelle Spiel als Beispiel – zum Einfügen in eine KI"
+              onClick={() => {
+                const text = buildAiPrompt(proc, topic)
+                copyText(
+                  text,
+                  `KI-Prompt kopiert (${Math.round(text.length / 1000)} Tsd. Zeichen). In eine KI einfügen, die Antwort als .json speichern und hier hochladen.`
+                )
+              }}
+            >
+              ✨ KI-Prompt kopieren
+            </button>
+          </div>
+
+          {note && (
+            <p className={uploadErrors.length ? styles.errBox : styles.okBox}>
+              {note}
+            </p>
+          )}
+          {uploadErrors.length > 0 && (
+            <ul className={styles.errBox}>
+              {uploadErrors.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+          )}
+
           <textarea
             className={`${styles.input} ${styles.jsonBox}`}
             value={jsonText}
             spellCheck={false}
-            onChange={(e) => setJsonText(e.target.value)}
+            wrap="off"
+            placeholder="Hier steht das Spiel als JSON. Du kannst eine Datei hochladen oder den Text einer KI einfügen."
+            onChange={(e) => {
+              setJsonText(e.target.value)
+              setJsonError("")
+            }}
           />
-          <div className={styles.actionRow}>
-            <button className={styles.primary} onClick={applyJson}>
-              JSON übernehmen
+
+          <div className={styles.jsonStatus}>
+            {!jsonInfo && <span>Kein Inhalt.</span>}
+            {jsonInfo && !jsonInfo.ok && (
+              <span className={styles.errText}>
+                ✘ Syntaxfehler: {jsonInfo.error}
+              </span>
+            )}
+            {jsonInfo?.ok && jsonInfo.problems.length === 0 && (
+              <span className={styles.okText}>
+                ✔ Gültig – alle Prüfungen bestanden
+                {applied ? " (übernommen)" : ""}
+              </span>
+            )}
+            {jsonInfo?.ok && jsonInfo.problems.length > 0 && (
+              <span className={styles.errText}>
+                ✘ Gültiges JSON, aber {jsonInfo.problems.length} Problem(e) im
+                Spiel
+                {applied ? " (übernommen)" : ""}
+              </span>
+            )}
+            <span className={styles.jsonMeta}>
+              {jsonText.split("\n").length} Zeilen ·{" "}
+              {Math.round(jsonText.length / 1000)} KB
+            </span>
+            <button
+              className={styles.primary}
+              onClick={applyJson}
+              disabled={
+                !jsonInfo?.ok || jsonInfo.problems.length > 0 || applied
+              }
+              title="Den Text in die Formular-Tabs übernehmen (nur wenn alle Prüfungen bestanden sind)"
+            >
+              {applied ? "Übernommen" : "JSON übernehmen"}
             </button>
-            {jsonError && <span className={styles.errText}>{jsonError}</span>}
           </div>
+          {jsonError && <p className={styles.errBox}>{jsonError}</p>}
+          {jsonInfo?.ok && jsonInfo.problems.length > 0 && (
+            <ul className={styles.errBox}>
+              {jsonInfo.problems.map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+            </ul>
+          )}
         </main>
       )}
     </div>
