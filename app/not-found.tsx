@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Seite nicht gefunden",
@@ -26,9 +27,9 @@ export default function NotFound() {
         404 – Level nicht gefunden
       </h1>
       <p style={{ margin: 0 }}>Dieses Spiel gibt es nicht (mehr).</p>
-      <a href="/" style={{ color: "#9ac8ff" }}>
+      <Link href="/" style={{ color: "#9ac8ff" }}>
         ← zurück zum Menü
-      </a>
+      </Link>
     </main>
   )
 }

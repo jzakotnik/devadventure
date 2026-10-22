@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Component, useEffect, useMemo, useState, type ReactNode } from "react"
 import { DEFAULT_SCORING, DEFAULT_UI, type Process } from "../../_game/schema"
 import { validateProcess } from "../../_game/validate"
@@ -97,6 +98,7 @@ export function Editor({
 
   useEffect(() => {
     // initial data load
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh().then((list) => {
       const first =
         list.find((g) => g.id === initialId) ??
@@ -275,9 +277,9 @@ export function Editor({
     >
       <header className={styles.header}>
         <h1>Spiel-Editor</h1>
-        <a href="/" className={styles.link}>
+        <Link href="/" className={styles.link}>
           ← zum Menü
-        </a>
+        </Link>
       </header>
 
       <section className={styles.bar}>

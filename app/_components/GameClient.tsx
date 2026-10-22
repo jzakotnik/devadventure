@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Sound } from "../_game/audio"
 import {
@@ -521,9 +522,9 @@ export function GameClient({ proc }: { proc: Process }) {
               🏆 {ui.achievements} {allUnlocked.length}/
               {proc.achievements.length}
             </button>
-            <a className={styles.ghostBtn} href="/">
+            <Link className={styles.ghostBtn} href="/">
               {ui.menu}
-            </a>
+            </Link>
             <button className={styles.startBtn} onClick={start}>
               {ui.start}
             </button>
