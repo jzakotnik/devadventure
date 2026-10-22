@@ -232,7 +232,7 @@ export function GameClient({ proc }: { proc: Process }) {
     const known = allUnlockedRef.current
     const added = banners0(fresh, known)
     soundRef.current?.achievement()
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setBanners((b) => [...b, ...added])
     const merged = Array.from(new Set([...known, ...fresh.map((f) => f.id)]))
     allUnlockedRef.current = merged
