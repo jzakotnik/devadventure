@@ -25,6 +25,7 @@ const TABS: Array<{ id: string; label: string; keys: string[] }> = [
       "title",
       "subtitle",
       "intro",
+      "disclaimer",
       "roundLimit",
       "firstStage",
       "texts",
@@ -48,6 +49,7 @@ const OPTIONAL_SECTIONS: Record<string, any> = {
   scoring: DEFAULT_SCORING,
   ui: DEFAULT_UI,
   debrief: { stats: [{ label: "TIPPS", stat: "hints" }] },
+  disclaimer: [""],
 }
 
 export function Editor({
@@ -278,8 +280,10 @@ export function Editor({
                   className={styles.mini}
                   onClick={() => ctx.set([k], OPTIONAL_SECTIONS[k])}
                 >
-                  + „{metaFor([k]).label ?? k}“ anpassen (sonst gelten
-                  Standardwerte)
+                  + „{metaFor([k]).label ?? k}“{" "}
+                  {k === "disclaimer"
+                    ? "hinzufügen"
+                    : "anpassen (sonst gelten Standardwerte)"}
                 </button>
               ) : null
             const v = proc[k]

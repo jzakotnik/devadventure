@@ -210,6 +210,7 @@ and the consistency checks in [`app/_game/validate.ts`](app/_game/validate.ts).
 | Key | Meaning |
 |---|---|
 | `id`, `title`, `subtitle`, `intro[]` | Name and title screen text; `intro` is a list of paragraphs |
+| `disclaimer[]` | Optional small print at the bottom of the title screen, one entry per line (the built-in games use it for sources, fiction and liability) |
 | `roundLimit` | Revision rounds allowed; one more ends the game |
 | `firstStage` | Stage id where the game starts |
 | `pipeline[]` | Progress bar: `{label, stages[]}` per big step |

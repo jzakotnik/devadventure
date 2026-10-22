@@ -103,6 +103,11 @@
     "Hol dir die Unterschriften: Teamleitung, Personalabteilung und Entgeltabrechnung.",
     "Eine fehlende Vertretung kostet dich eine Runde – plane klug!"
   ],
+  "disclaimer": [
+    "Der dargestellte Prozess beruht auf Informationen von öffentlich zugänglichen Webseiten.",
+    "Akteure und Handlung sind fiktional; Ähnlichkeiten mit realen Personen oder Organisationen sind zufällig.",
+    "Für die Richtigkeit, Vollständigkeit und Aktualität wird keine Haftung übernommen."
+  ],
   "roundLimit": 3,
   "firstStage": "intake",
   "pipeline": [

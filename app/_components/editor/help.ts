@@ -156,6 +156,8 @@ const UI: Record<string, string> = {
   back: "Text der Zurück-Schaltfläche.",
   loadError: "Überschrift, wenn ein Spiel nicht geladen werden kann.",
   menu: "Text der Schaltfläche zurück zum Menü.",
+  disclaimerLabel:
+    "Überschrift des Hinweises auf dem Titelbildschirm (Standard „Hinweis“).",
 }
 
 const MAP: Record<string, Meta> = {
@@ -173,6 +175,11 @@ const MAP: Record<string, Meta> = {
     "Texte auf dem Titelbildschirm. Jeder Eintrag ist ein Absatz: Worum geht es, was ist das Ziel?"
   ),
   "intro.*": H("Absatz", "Ein Absatz der Einführung."),
+  disclaimer: H(
+    "Hinweis (Disclaimer)",
+    "Kleingedruckter Hinweis unten auf dem Titelbildschirm, z. B. zu Quellen, erfundenen Figuren und Haftung. Ein Eintrag pro Zeile. Ohne Einträge erscheint kein Hinweis."
+  ),
+  "disclaimer.*": H("Zeile", "Eine Zeile des Hinweises."),
   roundLimit: H(
     "Rundenlimit",
     "Wie viele Überarbeitungsrunden erlaubt sind. Wird die Zahl überschritten, endet das Spiel ohne Erfolg. Üblich: 2–4."

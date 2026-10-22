@@ -7,6 +7,11 @@
     "Deine Projektmanagerin Lena hat einen neuen Modulvorschlag fertig. Bring ihn durch das Haus: BMZ, Partner (PEA) und Teamleitung müssen zustimmen.",
     "Du läufst zwischen Lena und den Prüfstellen hin und her. Wähle klug – jede Überarbeitungsrunde kostet Zeit und Nerven."
   ],
+  "disclaimer": [
+    "Der dargestellte Prozess beruht auf Informationen von öffentlich zugänglichen Webseiten.",
+    "Akteure und Handlung sind fiktional; Ähnlichkeiten mit realen Personen oder Organisationen sind zufällig.",
+    "Für die Richtigkeit, Vollständigkeit und Aktualität wird keine Haftung übernommen."
+  ],
   "roundLimit": 3,
   "firstStage": "intake",
   "pipeline": [
