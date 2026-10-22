@@ -7,6 +7,7 @@ import styles from "../../editor.module.css"
 import { buildAiPrompt } from "./aiPrompt"
 import { TAB_HELP, metaFor } from "./help"
 import { Overview } from "./Overview"
+import { checkUpload } from "./upload"
 import { Tree, removeIn, setIn, type Path } from "./Tree"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -69,6 +70,7 @@ export function Editor({
   const [jsonError, setJsonError] = useState("")
   const [topic, setTopic] = useState("")
   const [note, setNote] = useState("")
+  const [uploadErrors, setUploadErrors] = useState<string[]>([])
   const [msg, setMsg] = useState<{ ok: boolean; text: string[] } | null>(null)
   const [savedId, setSavedId] = useState<string | null>(null)
 
@@ -128,6 +130,7 @@ export function Editor({
       setJsonText(JSON.stringify(proc, null, 2))
       setJsonError("")
       setNote("")
+      setUploadErrors([])
     }
     setTab(id)
   }
@@ -167,6 +170,12 @@ export function Editor({
   function applyJson() {
     if (!jsonInfo?.ok) {
       setJsonError(jsonInfo ? jsonInfo.error : "Kein JSON eingegeben.")
+      return
+    }
+    if (jsonInfo.problems.length) {
+      setJsonError(
+        "Nur ein gültiges Spiel kann übernommen werden. Behebe zuerst die aufgelisteten Probleme."
+      )
       return
     }
     setJsonError("")
@@ -214,43 +223,27 @@ export function Editor({
 
   async function uploadJson(file: File | undefined) {
     if (!file) return
-    if (file.size > 1_000_000) {
-      setJsonError("Die Datei ist größer als 1 MB.")
-      return
-    }
-    const text = await file.text()
-    setJsonText(text)
     setJsonError("")
-    let value: unknown
-    try {
-      value = JSON.parse(text)
-    } catch {
+    setNote("")
+    const result = await checkUpload(file)
+    if (!result.ok) {
+      // keep the current game untouched; plain text may be corrected in the box
+      if (result.text !== undefined) setJsonText(result.text)
+      setUploadErrors(result.errors)
       setNote(
-        `„${file.name}“ geladen, aber das JSON hat einen Syntaxfehler (siehe unten). Nichts übernommen.`
+        `„${file.name}“ wurde abgelehnt. Das aktuelle Spiel bleibt unverändert.`
       )
       return
     }
-    if (!value || typeof value !== "object" || Array.isArray(value)) {
-      setNote(
-        `„${file.name}“ geladen, aber es ist kein JSON-Objekt. Nichts übernommen.`
-      )
-      return
-    }
-    setProc(value)
+    setUploadErrors([])
+    setJsonText(result.text)
+    setProc(result.value)
     const base = file.name.replace(/\.json$/i, "")
     if (/^[a-z0-9_-]{1,40}$/i.test(base)) setSaveId(base)
     setSavedId(null)
     setMsg(null)
-    let n = 0
-    try {
-      n = validateProcess(value as Process).length
-    } catch {
-      n = 1
-    }
     setNote(
-      n === 0
-        ? `„${file.name}“ geladen und übernommen – alle Prüfungen bestanden. Du kannst es jetzt speichern.`
-        : `„${file.name}“ geladen und übernommen, enthält aber ${n} Problem(e) (siehe unten). Korrigiere sie hier oder in den anderen Tabs, bevor du speicherst.`
+      `„${file.name}“ geladen und übernommen – alle Prüfungen bestanden. Du kannst es jetzt speichern.`
     )
   }
 
@@ -497,7 +490,18 @@ export function Editor({
             </button>
           </div>
 
-          {note && <p className={styles.okBox}>{note}</p>}
+          {note && (
+            <p className={uploadErrors.length ? styles.errBox : styles.okBox}>
+              {note}
+            </p>
+          )}
+          {uploadErrors.length > 0 && (
+            <ul className={styles.errBox}>
+              {uploadErrors.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+          )}
 
           <textarea
             className={`${styles.input} ${styles.jsonBox}`}
@@ -538,8 +542,10 @@ export function Editor({
             <button
               className={styles.primary}
               onClick={applyJson}
-              disabled={!jsonInfo?.ok || applied}
-              title="Den Text in die Formular-Tabs übernehmen"
+              disabled={
+                !jsonInfo?.ok || jsonInfo.problems.length > 0 || applied
+              }
+              title="Den Text in die Formular-Tabs übernehmen (nur wenn alle Prüfungen bestanden sind)"
             >
               {applied ? "Übernommen" : "JSON übernehmen"}
             </button>

@@ -1,8 +1,12 @@
 import type { AchievementRule, Process } from "./schema"
+import { checkGameFile } from "./guard"
 import { buildMap } from "./map"
 
 /** Returns a list of human-readable problems; empty when the process is valid. */
 export function validateProcess(proc: Process): string[] {
+  // strict structure first: later checks assume well-formed data
+  const malformed = checkGameFile(proc)
+  if (malformed.length) return malformed
   const errors: string[] = []
   const roomIds = new Set(proc.rooms.map((r) => r.id))
   const stageIds = new Set(proc.stages.map((s) => s.id))
