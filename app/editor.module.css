@@ -224,10 +224,15 @@
   display: flex;
   gap: 4px;
 }
-.jsonBox {
-  min-height: 60vh;
+/* textarea.input (specificity 0,1,1) would otherwise shrink this box */
+textarea.input.jsonBox {
+  height: calc(100vh - 360px);
+  min-height: 420px;
   font-family: ui-monospace, monospace;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre;
+  overflow: auto;
 }
 .group summary > span:first-of-type {
   flex: 1;
@@ -420,4 +425,48 @@ textarea.input {
   color: #aab2d8;
   font-size: 13px;
   font-weight: 400;
+}
+.pageWide {
+  max-width: min(1500px, 100%);
+}
+.jsonBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.jsonSpacer {
+  flex: 1;
+}
+.topic {
+  width: 280px;
+  max-width: 100%;
+}
+.tool {
+  padding: 7px 12px;
+  color: #cfd6ff;
+  background: #20244a;
+  border: 1px solid #33385a;
+  border-radius: 4px;
+  font: inherit;
+  cursor: pointer;
+}
+.tool:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.jsonStatus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.jsonMeta {
+  flex: 1;
+  color: #778;
+  font-size: 12px;
+  text-align: right;
+}
+.okText {
+  color: #7fd18b;
 }

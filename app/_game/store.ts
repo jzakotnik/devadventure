@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs"
 import path from "node:path"
 import type { Process } from "./schema"
+import { LIMITS, checkGameFile } from "./guard"
 import { validateProcess } from "./validate"
 
 /** Server-only. Bundled games are read-only; saved games live in data/games. */
@@ -8,6 +9,9 @@ const BUNDLED_DIR = path.join(process.cwd(), "app", "_content")
 const SAVED_DIR = path.join(process.cwd(), "data", "games")
 
 export const ID_PATTERN = /^[a-z0-9_-]{1,40}$/i
+
+/** Upper bound for games saved by the editor (protects the disk). */
+export const MAX_SAVED_GAMES = 100
 
 export interface GameInfo {
   id: string
@@ -36,8 +40,8 @@ async function readDir(dir: string, source: GameInfo["source"]) {
       const proc = JSON.parse(await fs.readFile(path.join(dir, f), "utf8"))
       out.push({
         id,
-        title: String(proc.title ?? id),
-        subtitle: String(proc.subtitle ?? ""),
+        title: String(proc.title ?? id).slice(0, 120),
+        subtitle: String(proc.subtitle ?? "").slice(0, 200),
         source,
       })
     } catch {}
@@ -63,9 +67,9 @@ export async function readGame(
     [SAVED_DIR, "saved"],
   ] as const) {
     try {
-      const proc = JSON.parse(
-        await fs.readFile(path.join(dir, `${id}.json`), "utf8")
-      )
+      const file = path.join(dir, `${id}.json`)
+      if ((await fs.stat(file)).size > LIMITS.bytes) continue
+      const proc = JSON.parse(await fs.readFile(file, "utf8"))
       return { proc, source }
     } catch {}
   }
@@ -79,7 +83,11 @@ export async function saveGame(id: string, proc: unknown): Promise<string[]> {
   const existing = await readGame(id)
   if (existing?.source === "bundled")
     return [`id "${id}" belongs to a built-in game, choose another id`]
-  if (!proc || typeof proc !== "object") return ["body is not an object"]
+  if (!proc || typeof proc !== "object" || Array.isArray(proc))
+    return ["body is not an object"]
+  // the same strict checks as in the editor: structure, limits, then game rules
+  const malformed = checkGameFile(proc)
+  if (malformed.length) return malformed
   const game = { ...(proc as Process), id }
   let errors: string[]
   try {
@@ -88,10 +96,23 @@ export async function saveGame(id: string, proc: unknown): Promise<string[]> {
     errors = [`invalid structure: ${e instanceof Error ? e.message : e}`]
   }
   if (errors.length) return errors
+
   await fs.mkdir(SAVED_DIR, { recursive: true })
-  await fs.writeFile(
-    path.join(SAVED_DIR, `${id}.json`),
-    JSON.stringify(game, null, 2) + "\n"
-  )
+  if (!existing) {
+    const count = (await fs.readdir(SAVED_DIR)).filter((f) =>
+      f.endsWith(".json")
+    ).length
+    if (count >= MAX_SAVED_GAMES)
+      return [
+        `too many saved games (max. ${MAX_SAVED_GAMES}); delete some first`,
+      ]
+  }
+  const text = JSON.stringify(game, null, 2) + "\n"
+  if (Buffer.byteLength(text) > LIMITS.bytes) return ["game too large"]
+  // write to a temporary file first so a crash never leaves a half-written game
+  const target = path.join(SAVED_DIR, `${id}.json`)
+  const tmp = `${target}.${process.pid}.tmp`
+  await fs.writeFile(tmp, text, { flag: "w", mode: 0o644 })
+  await fs.rename(tmp, target)
   return []
 }
